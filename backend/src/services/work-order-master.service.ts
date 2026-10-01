@@ -1,11 +1,15 @@
 import { PaginationQuery } from "../dtos/pagination.dto";
 import { WorkOrderMasterPayload } from "../dtos/work-order-master.dto";
 import { WorkOrderMaster, PaginatedWorkOrderMasters, WorkOrderMasterGroup } from "../interfaces/work-order-master.interface";
+import { SpecificationGroupRepository } from "../repositories/specification-group.repository";
 import { WorkOrderMasterRepository } from "../repositories/work-order-master.repository";
 import { AppError } from "../shared/errors/app.error";
 
 export class WorkOrderMasterService {
-    constructor(private workOrderMasterRepository: WorkOrderMasterRepository) { }
+    constructor(
+        private workOrderMasterRepository: WorkOrderMasterRepository,
+        private specificationGroupRepository: SpecificationGroupRepository
+    ) { }
 
     async getAllWorkOrderMasters(query: PaginationQuery): Promise<PaginatedWorkOrderMasters> {
         const result = await this.workOrderMasterRepository.findAll(query);
@@ -40,6 +44,18 @@ export class WorkOrderMasterService {
     }
 
     async createWorkOrderMaster(data: WorkOrderMasterPayload): Promise<void> {
+        const specificationGroup = await this.specificationGroupRepository.findById(
+            data.specification_group_id,
+        );
+
+        if (!specificationGroup) {
+            throw new AppError(
+                404,
+                "RELATED_DATA_NOT_FOUND",
+                "Related data not found",
+            );
+        }
+
         await this.workOrderMasterRepository.create(data);
     }
 
@@ -48,6 +64,18 @@ export class WorkOrderMasterService {
 
         if (!existingData) {
             throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
+        }
+
+        const specificationGroup = await this.specificationGroupRepository.findById(
+            data.specification_group_id,
+        );
+
+        if (!specificationGroup) {
+            throw new AppError(
+                404,
+                "RELATED_DATA_NOT_FOUND",
+                "Related data not found",
+            );
         }
 
         await this.workOrderMasterRepository.update(id, data);
