@@ -19,7 +19,7 @@ const menus = [
     },
     {
         label: 'Specification Groups',
-        path: '#',
+        path: '/specification-group',
         icon: 'pi pi-list',
     },
     {

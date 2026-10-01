@@ -28,6 +28,16 @@ const router = createRouter({
             name: 'checklist-item',
             component: () => import('@/views/checklist-item/ChecklistItems.vue'),
         },
+        {
+            path: '/specification-group',
+            name: 'specification-group',
+            component: () => import('@/views/specification-group/SpecificationGroups.vue'),
+        },
+        {
+            path: '/specification-group/:id',
+            name: 'specification-group-detail',
+            component: () => import('@/views/specification-group/SpecificationGroupDetail.vue'),
+        },
     ],
 })
 
