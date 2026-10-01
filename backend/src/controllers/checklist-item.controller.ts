@@ -13,6 +13,7 @@ export class ChecklistItemController {
         const search = req.query.search
             ? String(req.query.search).trim()
             : undefined;
+        const checklist_id = Number(req.query.checklist_id) || undefined;
 
         if (page < 1) {
             sendError(res, 500, "INVALID_PARAMETER", "Page must be greater than 0");
@@ -30,7 +31,7 @@ export class ChecklistItemController {
             search,
         };
 
-        const data = await this.checklistItemService.getAllChecklistItems(query);
+        const data = await this.checklistItemService.getAllChecklistItems(query, checklist_id);
 
         sendSuccess(
             res,

@@ -7,8 +7,8 @@ import { AppError } from "../shared/errors/app.error";
 export class ChecklistItemService {
     constructor(private checklistItemRepository: ChecklistItemRepository) { }
 
-    async getAllChecklistItems(query: PaginationQuery): Promise<PaginatedChecklistItems> {
-        const result = await this.checklistItemRepository.findAll(query);
+    async getAllChecklistItems(query: PaginationQuery, checklist_id?: number): Promise<PaginatedChecklistItems> {
+        const result = await this.checklistItemRepository.findAll(query, checklist_id);
 
         const totalPages = Math.ceil(result.total / query.limit);
 

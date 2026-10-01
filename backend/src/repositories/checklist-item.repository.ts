@@ -8,13 +8,19 @@ interface ChecklistItemRow extends RowDataPacket, ChecklistItem { }
 
 export class ChecklistItemRepository {
     async findAll(
-        query: PaginationQuery
+        query: PaginationQuery,
+        checklist_id?: number
     ): Promise<{ data: ChecklistItem[]; total: number }> {
         const { page, limit, search } = query;
 
         const offset = (page - 1) * limit;
         const conditions: string[] = [];
         const params: any[] = [];
+
+        if (checklist_id != null) {
+            conditions.push(`checklist_id = ?`);
+            params.push(checklist_id);
+        }
 
         if (search) {
             conditions.push(`
