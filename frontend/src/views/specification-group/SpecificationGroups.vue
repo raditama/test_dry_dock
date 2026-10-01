@@ -52,18 +52,6 @@ const onPage = (event: {
     fetchSpecificationGroups()
 }
 
-const formatDate = (date: string | null) => {
-    if (!date) {
-        return '-'
-    }
-
-    return new Intl.DateTimeFormat('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    }).format(new Date(date))
-}
-
 onMounted(() => {
     fetchSpecificationGroups()
 })
@@ -153,7 +141,7 @@ const confirmDeleteSpecificationGroup = async (): Promise<void> => {
                 <button
                     class="rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-600 cursor-pointer"
                     @click="goToCreate">
-                    Add SpecificationGroup
+                    Add Specification Group
                 </button>
             </div>
         </div>

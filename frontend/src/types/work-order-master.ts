@@ -33,3 +33,17 @@ export interface WorkOrderMasterFormData {
     estimated_hours: number | null;
     job_desc: string | null;
 }
+
+export interface WorkOrderMasterGroup {
+    id: number;
+    group_no: string;
+    name: string;
+    sort_order: number;
+    data: WorkOrderMaster[];
+}
+
+export interface WorkOrderMasterGroupResponse {
+    success: boolean
+    message: string
+    data: WorkOrderMasterGroup[];
+}

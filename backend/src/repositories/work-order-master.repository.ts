@@ -1,5 +1,5 @@
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
-import { WorkOrderMaster } from '../interfaces/work-order-master.interface';
+import { WorkOrderMaster, WorkOrderMasterGroup } from '../interfaces/work-order-master.interface';
 import dbPool from '../config/database';
 import { PaginationQuery } from '../dtos/pagination.dto';
 import { WorkOrderMasterPayload } from '../dtos/work-order-master.dto';
@@ -68,6 +68,95 @@ export class WorkOrderMasterRepository {
             data: rows,
             total,
         };
+    }
+
+    async findAllGroup(
+        search?: string
+    ): Promise<WorkOrderMasterGroup[]> {
+        const conditions: string[] = [];
+        const params: any[] = [];
+
+        if (search) {
+            conditions.push(`
+            wom.job_code LIKE ?
+        `);
+
+            params.push(`%${search}%`);
+        }
+
+        const whereClause =
+            conditions.length > 0
+                ? `WHERE ${conditions.join(' AND ')}`
+                : '';
+
+        const [rows] = await dbPool.query<
+            (WorkOrderMasterRow & {
+                group_no: string;
+                group_name: string;
+                group_sort_order: number;
+            })[]
+        >(
+            `
+            SELECT
+                wom.id,
+                wom.specification_group_id,
+                wom.job_code,
+                wom.job_name,
+                wom.job_category,
+                wom.job_standar,
+                wom.job_type,
+                wom.job_critical,
+                wom.job_internal,
+                wom.estimated_hours,
+                wom.job_desc,
+
+                wmg.group_no,
+                wmg.name AS group_name,
+                wmg.sort_order AS group_sort_order
+
+            FROM work_order_master wom
+
+            INNER JOIN specification_group wmg
+                ON wmg.id = wom.specification_group_id
+
+            ${whereClause}
+
+            ORDER BY
+                wmg.sort_order ASC,
+                wom.id DESC
+            `,
+            [...params]
+        );
+
+        const grouped = new Map<number, WorkOrderMasterGroup>();
+
+        for (const row of rows) {
+            if (!grouped.has(row.specification_group_id)) {
+                grouped.set(row.specification_group_id, {
+                    id: row.specification_group_id,
+                    group_no: row.group_no,
+                    name: row.group_name,
+                    sort_order: row.group_sort_order,
+                    data: [],
+                });
+            }
+
+            grouped.get(row.specification_group_id)!.data.push({
+                id: row.id,
+                specification_group_id: row.specification_group_id,
+                job_code: row.job_code,
+                job_name: row.job_name,
+                job_category: row.job_category,
+                job_standar: row.job_standar,
+                job_type: row.job_type,
+                job_critical: row.job_critical,
+                job_internal: row.job_internal,
+                estimated_hours: row.estimated_hours,
+                job_desc: row.job_desc,
+            });
+        }
+
+        return Array.from(grouped.values());
     }
 
     async findById(id: number): Promise<WorkOrderMaster | null> {

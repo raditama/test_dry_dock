@@ -1,6 +1,6 @@
 import { PaginationQuery } from "../dtos/pagination.dto";
 import { WorkOrderMasterPayload } from "../dtos/work-order-master.dto";
-import { WorkOrderMaster, PaginatedWorkOrderMasters } from "../interfaces/work-order-master.interface";
+import { WorkOrderMaster, PaginatedWorkOrderMasters, WorkOrderMasterGroup } from "../interfaces/work-order-master.interface";
 import { WorkOrderMasterRepository } from "../repositories/work-order-master.repository";
 import { AppError } from "../shared/errors/app.error";
 
@@ -21,6 +21,12 @@ export class WorkOrderMasterService {
                 totalPages,
             },
         };
+    }
+
+    async getAllWorkOrderMasterGroup(search?: string): Promise<WorkOrderMasterGroup[]> {
+        const result = await this.workOrderMasterRepository.findAllGroup(search);
+
+        return result;
     }
 
     async getWorkOrderMasterById(id: number): Promise<WorkOrderMaster> {

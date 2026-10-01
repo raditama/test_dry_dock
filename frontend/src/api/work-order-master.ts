@@ -1,9 +1,13 @@
 import api from './client'
-import type { WorkOrderMasterResponse } from '@/types/work-order-master'
+import type { WorkOrderMasterGroupResponse, WorkOrderMasterResponse } from '@/types/work-order-master'
 
 export interface GetWorkOrderMastersParams {
     page?: number
     limit?: number
+    search?: string
+}
+
+export interface GetWorkOrderMasterGroupParams {
     search?: string
 }
 
@@ -14,6 +18,18 @@ export const getWorkOrderMasters = async (
         params: {
             page: params.page ?? 1,
             limit: params.limit ?? 10,
+            search: params.search ?? '',
+        },
+    })
+
+    return response.data
+}
+
+export const getWorkOrderMasterGroup = async (
+    params: GetWorkOrderMasterGroupParams = {},
+): Promise<WorkOrderMasterGroupResponse> => {
+    const response = await api.get<WorkOrderMasterGroupResponse>('/work-order-master/group', {
+        params: {
             search: params.search ?? '',
         },
     })

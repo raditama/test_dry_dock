@@ -24,7 +24,7 @@ const menus = [
     },
     {
         label: 'Work Order Master',
-        path: '#',
+        path: '/work-order-master',
         icon: 'pi pi-file-edit',
     },
     {

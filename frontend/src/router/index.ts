@@ -38,6 +38,16 @@ const router = createRouter({
             name: 'specification-group-detail',
             component: () => import('@/views/specification-group/SpecificationGroupDetail.vue'),
         },
+        {
+            path: '/work-order-master',
+            name: 'work-order-master',
+            component: () => import('@/views/work-order-master/WorkOrderMasters.vue'),
+        },
+        {
+            path: '/work-order-master/:id',
+            name: 'work-order-master-detail',
+            component: () => import('@/views/work-order-master/WorkOrderMasterDetail.vue'),
+        },
     ],
 })
 

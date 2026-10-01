@@ -41,6 +41,20 @@ export class WorkOrderMasterController {
         );
     };
 
+    getAllWorkOrderMasterGroup = async (req: Request, res: Response): Promise<void> => {
+        const search = req.query.search
+            ? String(req.query.search).trim()
+            : undefined;
+
+        const data = await this.workOrderMasterService.getAllWorkOrderMasterGroup(search);
+
+        sendSuccess(
+            res,
+            "Successfully retrieved data",
+            data
+        );
+    };
+
     getWorkOrderMasterById = async (req: Request, res: Response): Promise<void> => {
         const id = Number(req.params.id);
 

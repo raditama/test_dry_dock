@@ -9,6 +9,7 @@ const workOrderMasterService = new WorkOrderMasterService(workOrderMasterReposit
 const workOrderMasterController = new WorkOrderMasterController(workOrderMasterService);
 
 router.get('/', workOrderMasterController.getAllWorkOrderMasters);
+router.get('/group', workOrderMasterController.getAllWorkOrderMasterGroup);
 router.get('/:id', workOrderMasterController.getWorkOrderMasterById);
 router.post('/', workOrderMasterController.createWorkOrderMaster);
 router.put('/:id', workOrderMasterController.updateWorkOrderMaster);

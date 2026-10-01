@@ -14,6 +14,14 @@ export interface WorkOrderMaster {
     job_desc: string | null;
 }
 
+export interface WorkOrderMasterGroup {
+    id: number;
+    group_no: string;
+    name: string;
+    sort_order: number;
+    data: WorkOrderMaster[];
+}
+
 export interface PaginatedWorkOrderMasters {
     data: WorkOrderMaster[];
     pagination: Pagination;
