@@ -1,18 +1,9 @@
+import type { GetListParams } from '@/types/pagination'
 import api from './client'
-import type { WorkOrderMasterGroupResponse, WorkOrderMasterResponse } from '@/types/work-order-master'
-
-export interface GetWorkOrderMastersParams {
-    page?: number
-    limit?: number
-    search?: string
-}
-
-export interface GetWorkOrderMasterGroupParams {
-    search?: string
-}
+import type { GetWorkOrderMasterGroupParams, WorkOrderMasterGroupResponse, WorkOrderMasterResponse } from '@/types/work-order-master'
 
 export const getWorkOrderMasters = async (
-    params: GetWorkOrderMastersParams = {},
+    params: GetListParams = {},
 ): Promise<WorkOrderMasterResponse> => {
     const response = await api.get<WorkOrderMasterResponse>('/work-order-master', {
         params: {

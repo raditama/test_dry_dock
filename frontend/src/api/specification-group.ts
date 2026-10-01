@@ -1,14 +1,9 @@
+import type { GetListParams } from '@/types/pagination'
 import api from './client'
 import type { SpecificationGroupResponse } from '@/types/specification-group'
 
-export interface GetSpecificationGroupsParams {
-    page?: number
-    limit?: number
-    search?: string
-}
-
 export const getSpecificationGroups = async (
-    params: GetSpecificationGroupsParams = {},
+    params: GetListParams = {},
 ): Promise<SpecificationGroupResponse> => {
     const response = await api.get<SpecificationGroupResponse>('/specification-group', {
         params: {

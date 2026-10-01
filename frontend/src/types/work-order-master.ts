@@ -47,3 +47,7 @@ export interface WorkOrderMasterGroupResponse {
     message: string
     data: WorkOrderMasterGroup[];
 }
+
+export interface GetWorkOrderMasterGroupParams {
+    search?: string
+}

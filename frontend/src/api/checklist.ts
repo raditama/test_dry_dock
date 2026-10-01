@@ -1,14 +1,9 @@
+import type { GetListParams } from '@/types/pagination'
 import api from './client'
 import type { ChecklistResponse } from '@/types/checklist'
 
-export interface GetChecklistsParams {
-    page?: number
-    limit?: number
-    search?: string
-}
-
 export const getChecklists = async (
-    params: GetChecklistsParams = {},
+    params: GetListParams = {},
 ): Promise<ChecklistResponse> => {
     const response = await api.get<ChecklistResponse>('/checklist', {
         params: {

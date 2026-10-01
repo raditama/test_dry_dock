@@ -1,14 +1,9 @@
+import type { GetListParams } from '@/types/pagination'
 import api from './client'
 import type { DryDockResponse } from '@/types/dry-dock'
 
-export interface GetDryDocksParams {
-    page?: number
-    limit?: number
-    search?: string
-}
-
 export const getDryDocks = async (
-    params: GetDryDocksParams = {},
+    params: GetListParams = {},
 ): Promise<DryDockResponse> => {
     const response = await api.get<DryDockResponse>('/dry-dock', {
         params: {

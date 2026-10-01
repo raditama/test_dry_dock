@@ -4,3 +4,9 @@ export interface Pagination {
     total: number
     totalPages: number
 }
+
+export interface GetListParams {
+    page?: number
+    limit?: number
+    search?: string
+}

@@ -17,3 +17,10 @@ export interface ChecklistItemFormData {
     checklist_id: number;
     title: string;
 }
+
+export interface GetChecklistItemsParams {
+    page?: number
+    limit?: number
+    search?: string
+    checklist_id?: number
+}

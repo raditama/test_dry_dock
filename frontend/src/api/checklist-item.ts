@@ -1,12 +1,5 @@
 import api from './client'
-import type { ChecklistItemResponse } from '@/types/checklist-item'
-
-export interface GetChecklistItemsParams {
-    page?: number
-    limit?: number
-    search?: string
-    checklist_id?: number
-}
+import type { ChecklistItemResponse, GetChecklistItemsParams } from '@/types/checklist-item'
 
 export const getChecklistItems = async (
     params: GetChecklistItemsParams = {},
