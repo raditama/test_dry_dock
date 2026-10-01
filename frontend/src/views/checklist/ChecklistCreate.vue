@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Dialog from 'primevue/dialog'
-import DryDockForm from './DryDockForm.vue'
-import { createDryDock } from '@/api/dry-dock.ts'
-import type { DryDockFormData } from '@/types/dry-dock.ts'
+import ChecklistForm from './ChecklistForm.vue'
+import { createChecklist } from '@/api/checklist.ts'
+import type { ChecklistFormData } from '@/types/checklist.js'
+
 
 interface Props {
     visible: boolean
@@ -19,11 +20,11 @@ const emit = defineEmits<{
 
 const loading = ref(false)
 
-const handleSubmit = async (data: DryDockFormData): Promise<void> => {
+const handleSubmit = async (data: ChecklistFormData): Promise<void> => {
     try {
         loading.value = true
 
-        await createDryDock(data)
+        await createChecklist(data)
 
         emit('success')
         emit('update:visible', false)
@@ -48,8 +49,8 @@ const handleClose = (): void => {
 </script>
 
 <template>
-    <Dialog :visible="props.visible" modal header="Add Dry Dock" :style="{ width: '800px' }" :closable="!loading"
+    <Dialog :visible="props.visible" modal header="Add Checklist" :style="{ width: '800px' }" :closable="!loading"
         :close-on-escape="!loading" @update:visible="handleClose">
-        <DryDockForm :loading="loading" mode="create" @submit="handleSubmit" @cancel="handleCancel" />
+        <ChecklistForm :loading="loading" mode="create" @submit="handleSubmit" @cancel="handleCancel" />
     </Dialog>
 </template>

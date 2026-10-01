@@ -1,3 +1,5 @@
+import type { Pagination } from "./pagination"
+
 export type DryDockStatus = 'PLANNING' | 'EXECUTION' | 'COMPLETED'
 
 export type DryDockPriority = 'LOW' | 'MEDIUM' | 'HIGH'
@@ -18,13 +20,6 @@ export interface DryDock {
     responsible_bank: string
     status: DryDockStatus
     priority: DryDockPriority
-}
-
-export interface Pagination {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
 }
 
 export interface DryDockResponse {

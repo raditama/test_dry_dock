@@ -29,7 +29,7 @@ const menus = [
     },
     {
         label: 'Checklist',
-        path: '#',
+        path: '/checklist',
         icon: 'pi pi-check-square',
     },
     {

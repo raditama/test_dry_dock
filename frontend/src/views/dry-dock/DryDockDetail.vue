@@ -1,26 +1,9 @@
 <script setup lang="ts">
-import { getDryDock } from '@/api/dryDock'
+import { getDryDock } from '@/api/dry-dock'
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
-
-interface DryDock {
-    id: number
-    vessel: string
-    dock_list_no: string
-    description: string
-    shipyard_name: string
-    shipyard_detail: string
-    planned_start_date: string
-    planned_end_date: string
-    actual_start_date: string
-    actual_end_date: string
-    account_code: string
-    budget: string
-    responsible_bank: string
-    status: string
-    priority: string
-}
+import type { DryDock } from '@/types/dry-dock'
 
 const route = useRoute()
 const router = useRouter()
@@ -40,7 +23,7 @@ const fetchDryDock = async (): Promise<void> => {
 
         dryDock.value = response.data
     } catch (error) {
-        console.error('Failed to get dry dock:', error)
+        console.error('Failed to get data:', error)
     } finally {
         loading.value = false
     }
@@ -273,7 +256,7 @@ onMounted(() => {
             <i class="pi pi-inbox text-4xl text-slate-400"></i>
 
             <p class="mt-3 text-slate-500">
-                Dry dock data not found.
+                Data not found.
             </p>
         </div>
     </div>

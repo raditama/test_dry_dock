@@ -1,5 +1,5 @@
 import api from './client'
-import type { DryDockResponse } from '@/types/dryDock'
+import type { DryDockResponse } from '@/types/dry-dock'
 
 export interface GetDryDocksParams {
     page?: number

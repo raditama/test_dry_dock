@@ -5,7 +5,7 @@ import InputNumber from 'primevue/inputnumber'
 import Select from 'primevue/select'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
-import type { DryDock, DryDockFormData } from '@/types/dryDock'
+import type { DryDock, DryDockFormData } from '@/types/dry-dock'
 
 const props = withDefaults(
     defineProps<{
@@ -43,8 +43,6 @@ const form = reactive<DryDockFormData>({
     status: props.modelValue.status ?? 'PLANNING',
     priority: props.modelValue.priority ?? 'MEDIUM',
 })
-
-const isEdit = computed(() => props.mode === 'edit')
 
 const statusOptions = [
     { label: 'Planning', value: 'PLANNING' },

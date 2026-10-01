@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
-import {
-    getDryDock,
-    updateDryDock,
-} from '@/api/dry-dock.ts'
-import type { DryDock } from '@/types/dry-dock.ts'
-import DryDockForm from './DryDockForm.vue'
+import { getChecklist, updateChecklist } from '@/api/checklist.ts'
+import type { Checklist } from '@/types/checklist.ts'
+import ChecklistForm from './ChecklistForm.vue'
 
 interface Props {
     visible: boolean
@@ -21,20 +18,20 @@ const emit = defineEmits<{
     cancel: []
 }>()
 
-const dryDock = ref<Partial<DryDock>>({})
+const checklist = ref<Partial<Checklist>>({})
 const loading = ref(false)
 const loadingData = ref(false)
 
-const fetchDryDock = async (): Promise<void> => {
+const fetchChecklist = async (): Promise<void> => {
     if (!props.id) return
 
     try {
         loadingData.value = true
-        dryDock.value = {}
+        checklist.value = {}
 
-        const response = await getDryDock(props.id)
+        const response = await getChecklist(props.id)
 
-        dryDock.value = response.data
+        checklist.value = response.data
     } catch (error) {
         console.error('Failed to fetch data:', error)
     } finally {
@@ -48,7 +45,7 @@ const handleSubmit = async (data: any): Promise<void> => {
     try {
         loading.value = true
 
-        await updateDryDock(props.id, data)
+        await updateChecklist(props.id, data)
 
         emit('success')
         emit('update:visible', false)
@@ -75,20 +72,20 @@ watch(
     () => [props.visible, props.id],
     ([visible]) => {
         if (visible) {
-            fetchDryDock()
+            fetchChecklist()
         }
     },
 )
 </script>
 
 <template>
-    <Dialog :visible="props.visible" modal header="Edit Dry Dock" :style="{ width: '800px' }" :closable="!loading"
+    <Dialog :visible="props.visible" modal header="Edit Checklist" :style="{ width: '800px' }" :closable="!loading"
         :close-on-escape="!loading" @update:visible="handleClose">
         <div v-if="loadingData" class="py-8 text-center text-slate-500">
             Loading...
         </div>
 
-        <DryDockForm v-else :model-value="dryDock" :loading="loading" mode="edit" @submit="handleSubmit"
+        <ChecklistForm v-else :model-value="checklist" :loading="loading" mode="edit" @submit="handleSubmit"
             @cancel="handleCancel" />
     </Dialog>
 </template>
