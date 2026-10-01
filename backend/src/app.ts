@@ -1,6 +1,7 @@
 import express from "express";
 
 import dryDockRoutes from './routes/dry-dock.routes';
+import checklistkRoutes from './routes/checklist.routes';
 import cors from 'cors';
 import { errorHandler } from "./shared/middlewares/error.middleware";
 import dotenv from 'dotenv'
@@ -24,6 +25,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use('/api/dry-dock', dryDockRoutes);
+app.use('/api/checklist', checklistkRoutes);
 
 app.use(errorHandler);
 
