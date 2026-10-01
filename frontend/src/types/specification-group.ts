@@ -19,3 +19,14 @@ export interface SpecificationGroupFormData {
     name: string;
     sort_order: number;
 }
+
+export interface SpecificationGroupLov {
+    id: number;
+    name: string;
+}
+
+export interface SpecificationGroupLovResponse {
+    success: boolean
+    message: string
+    data: SpecificationGroupLov[]
+}

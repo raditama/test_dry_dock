@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
 import type { SpecificationGroup, SpecificationGroupFormData } from '@/types/specification-group'
-import { Checkbox, InputNumber } from 'primevue'
+import { InputNumber } from 'primevue'
 
 const props = withDefaults(
     defineProps<{

@@ -1,6 +1,6 @@
 import type { GetListParams } from '@/types/pagination'
 import api from './client'
-import type { SpecificationGroupResponse } from '@/types/specification-group'
+import type { SpecificationGroupLovResponse, SpecificationGroupResponse } from '@/types/specification-group'
 
 export const getSpecificationGroups = async (
     params: GetListParams = {},
@@ -39,6 +39,12 @@ export const updateSpecificationGroup = async (
 
 export const deleteSpecificationGroup = async (id: number) => {
     const response = await api.delete(`/specification-group/${id}`)
+
+    return response.data
+}
+
+export const getSpecificationGroupLov = async (): Promise<SpecificationGroupLovResponse> => {
+    const response = await api.get<SpecificationGroupLovResponse>('/specification-group/lov')
 
     return response.data
 }

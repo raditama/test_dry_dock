@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
-import type { WorkOrderMaster, WorkOrderMasterFormData } from '@/types/work-order-master'
-import { Checkbox, InputNumber } from 'primevue'
+import Select from 'primevue/select'
+import { InputNumber } from 'primevue'
+import type { WorkOrderMaster, WorkOrderMasterFormData, } from '@/types/work-order-master'
+import { getSpecificationGroupLov, } from '@/api/specification-group'
+import type { SpecificationGroupLov } from '@/types/specification-group'
 
 const props = withDefaults(
     defineProps<{
@@ -35,11 +38,39 @@ const form = reactive<WorkOrderMasterFormData>({
     job_internal: props.modelValue.job_internal ?? null,
     estimated_hours: props.modelValue.estimated_hours ?? null,
     job_desc: props.modelValue.job_desc ?? null,
-});
+})
+
+const specificationGroups = ref<SpecificationGroupLov[]>([])
+const specificationGroupLoading = ref(false)
+
+const loadSpecificationGroups = async () => {
+    specificationGroupLoading.value = true
+
+    try {
+        const response = await getSpecificationGroupLov()
+
+        if (response.success) {
+            specificationGroups.value = response.data
+        } else {
+            console.error(
+                'Failed to load specification groups:',
+                response.message,
+            )
+        }
+    } catch (error) {
+        console.error('Failed to load specification groups:', error)
+    } finally {
+        specificationGroupLoading.value = false
+    }
+}
 
 const submit = () => {
     emit('submit', { ...form })
 }
+
+onMounted(() => {
+    loadSpecificationGroups()
+})
 </script>
 
 <template>
@@ -52,8 +83,11 @@ const submit = () => {
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Specification Group
                         </label>
-                        <InputNumber v-model="form.specification_group_id" class="w-full"
-                            placeholder="Enter specification group" :min="1" required />
+
+                        <Select v-model="form.specification_group_id" :options="specificationGroups" optionLabel="name"
+                            optionValue="id" class="w-full" placeholder="Select specification group"
+                            :loading="specificationGroupLoading" :disabled="specificationGroupLoading"
+                            :showClear="true" />
                     </div>
 
                     <div>
@@ -79,9 +113,9 @@ const submit = () => {
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
-                            Job Standar
+                            Job Standard
                         </label>
-                        <InputText v-model="form.job_standar" class="w-full" placeholder="Enter job standar" />
+                        <InputText v-model="form.job_standar" class="w-full" placeholder="Enter job standard" />
                     </div>
 
                     <div>
