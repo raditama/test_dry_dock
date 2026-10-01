@@ -61,7 +61,7 @@ export class ChecklistController {
             is_active,
         } = req.body;
 
-        if (!name || !is_active) {
+        if (!name || is_active === undefined || is_active === null) {
             sendError(res, 500, "INVALID_PARAMETER", "Required fields are missing");
             return;
         }
@@ -91,7 +91,7 @@ export class ChecklistController {
             is_active,
         } = req.body;
 
-        if (!name || !is_active) {
+        if (!name || is_active === undefined || is_active === null) {
             sendError(res, 500, "INVALID_PARAMETER", "Required fields are missing");
             return;
         }
