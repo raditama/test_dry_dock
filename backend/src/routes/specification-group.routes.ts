@@ -8,6 +8,8 @@ const specificationGroupRepository = new SpecificationGroupRepository();
 const specificationGroupService = new SpecificationGroupService(specificationGroupRepository);
 const specificationGroupController = new SpecificationGroupController(specificationGroupService);
 
+router.get('/lov', specificationGroupController.getSpecificationGroupLov);
+
 router.get('/', specificationGroupController.getAllSpecificationGroups);
 router.get('/:id', specificationGroupController.getSpecificationGroupById);
 router.post('/', specificationGroupController.createSpecificationGroup);

@@ -119,4 +119,10 @@ export class SpecificationGroupController {
 
         sendSuccess(res, "Successfully deleted data");
     };
+
+    getSpecificationGroupLov = async (req: Request, res: Response): Promise<void> => {
+        const data = await this.specificationGroupService.getSpecificationGroupLov();
+
+        sendSuccess(res, 'Successfully retrieved data', data);
+    };
 }

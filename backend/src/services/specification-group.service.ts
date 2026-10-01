@@ -1,5 +1,6 @@
 import { PaginationQuery } from "../dtos/pagination.dto";
 import { SpecificationGroupPayload } from "../dtos/specification-group.dto";
+import { Lov } from "../interfaces/lov.interface";
 import { SpecificationGroup, PaginatedSpecificationGroups } from "../interfaces/specification-group.interface";
 import { SpecificationGroupRepository } from "../repositories/specification-group.repository";
 import { AppError } from "../shared/errors/app.error";
@@ -75,5 +76,9 @@ export class SpecificationGroupService {
 
             throw new AppError(500, "DELETE_FAILED", "Failed to delete data");
         }
+    }
+
+    async getSpecificationGroupLov(): Promise<Lov[]> {
+        return await this.specificationGroupRepository.findLov();
     }
 }

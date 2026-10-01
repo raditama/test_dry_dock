@@ -3,8 +3,10 @@ import { SpecificationGroup } from '../interfaces/specification-group.interface'
 import dbPool from '../config/database';
 import { PaginationQuery } from '../dtos/pagination.dto';
 import { SpecificationGroupPayload } from '../dtos/specification-group.dto';
+import { Lov } from '../interfaces/lov.interface';
 
 interface SpecificationGroupRow extends RowDataPacket, SpecificationGroup { }
+interface SpecificationGroupLovRow extends RowDataPacket, Lov {}
 
 export class SpecificationGroupRepository {
     async findAll(
@@ -135,5 +137,19 @@ export class SpecificationGroupRepository {
         );
 
         return result.affectedRows > 0;
+    }
+
+    async findLov(): Promise<Lov[]> {
+        const [rows] = await dbPool.query<SpecificationGroupLovRow[]>(
+            `
+            SELECT
+                id,
+                name
+            FROM specification_group
+            ORDER BY sort_order ASC
+            `
+        );
+
+        return rows;
     }
 }
