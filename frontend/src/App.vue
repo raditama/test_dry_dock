@@ -1,11 +1,16 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import Sidebar from './components/Sidebar.vue'
+
+const sidebarCollapsed = ref(false)
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-</template>
+    <div class="min-h-screen bg-slate-50">
+        <Sidebar @collapsed="sidebarCollapsed = $event" />
 
-<style scoped></style>
+        <main class="min-w-0 transition-all duration-300" :class="sidebarCollapsed ? 'ml-20' : 'ml-60'">
+            <RouterView />
+        </main>
+    </div>
+</template>

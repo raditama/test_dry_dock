@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Global Scrollbar */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* PrimeVue Dialog Scrollbar */
+.p-dialog-content {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.p-dialog-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.p-dialog-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.p-dialog-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+.p-dialog-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
