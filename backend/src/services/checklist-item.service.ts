@@ -3,9 +3,13 @@ import { ChecklistItemPayload } from "../dtos/checklist-item.dto";
 import { ChecklistItem, PaginatedChecklistItems } from "../interfaces/checklist-item.interface";
 import { ChecklistItemRepository } from "../repositories/checklist-item.repository";
 import { AppError } from "../shared/errors/app.error";
+import { ChecklistRepository } from "../repositories/checklist.repository";
 
 export class ChecklistItemService {
-    constructor(private checklistItemRepository: ChecklistItemRepository) { }
+    constructor(
+        private checklistItemRepository: ChecklistItemRepository,
+        private checklistRepository: ChecklistRepository
+    ) { }
 
     async getAllChecklistItems(query: PaginationQuery, checklist_id?: number): Promise<PaginatedChecklistItems> {
         const result = await this.checklistItemRepository.findAll(query, checklist_id);
@@ -34,6 +38,18 @@ export class ChecklistItemService {
     }
 
     async createChecklistItem(data: ChecklistItemPayload): Promise<void> {
+        const checklist = await this.checklistRepository.findById(
+            data.checklist_id,
+        );
+
+        if (!checklist) {
+            throw new AppError(
+                404,
+                "RELATED_DATA_NOT_FOUND",
+                "Related data not found",
+            );
+        }
+
         await this.checklistItemRepository.create(data);
     }
 
@@ -42,6 +58,18 @@ export class ChecklistItemService {
 
         if (!existingData) {
             throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
+        }
+
+        const checklist = await this.checklistRepository.findById(
+            data.checklist_id,
+        );
+
+        if (!checklist) {
+            throw new AppError(
+                404,
+                "RELATED_DATA_NOT_FOUND",
+                "Related data not found",
+            );
         }
 
         await this.checklistItemRepository.update(id, data);
