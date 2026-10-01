@@ -18,14 +18,12 @@ export class ChecklistRepository {
 
         if (search) {
             conditions.push(`
-                (
                     name LIKE ?
-                )
             `);
 
             const searchValue = `%${search}%`;
 
-            params.push(searchValue, searchValue);
+            params.push(searchValue);
         }
 
         const whereClause =

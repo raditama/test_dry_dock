@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Tag from 'primevue/tag'
 import { onMounted, ref } from 'vue'
-import { deleteChecklist, getChecklists } from '@/api/checklist.ts'
-import type { Checklist } from '@/types/checklist.ts'
-import { useRouter } from 'vue-router'
+import { deleteChecklistItem, getChecklistItems } from '@/api/checklist-item.ts'
+import type { ChecklistItem } from '@/types/checklist-item.ts'
+import { useRoute, useRouter } from 'vue-router'
 import DeleteConfirmationModal from '@/components/data-table/DeleteConfirmationModal.vue'
-import ChecklistCreate from './ChecklistCreate.vue'
+import ChecklistItemCreate from './ChecklistItemCreate.vue'
 import Button from 'primevue/button'
-import ChecklistEdit from './ChecklistEdit.vue'
+import ChecklistItemEdit from './ChecklistItemEdit.vue'
 import type { Pagination } from '@/types/pagination.ts'
+import { getChecklist } from '@/api/checklist.ts'
 
+const route = useRoute()
 const router = useRouter()
-const checklist = ref<Checklist[]>([])
+const checklistItem = ref<ChecklistItem[]>([])
 const loading = ref(false)
 const search = ref('')
 
@@ -24,17 +25,20 @@ const pagination = ref<Pagination>({
     totalPages: 0,
 })
 
-const fetchChecklists = async () => {
+const checklist_id = Number(route.params.checklist_id)
+
+const fetchChecklistItems = async () => {
     try {
         loading.value = true
 
-        const response = await getChecklists({
+        const response = await getChecklistItems({
             page: pagination.value.page,
             limit: pagination.value.limit,
             search: search.value,
+            checklist_id: checklist_id
         })
 
-        checklist.value = response.data
+        checklistItem.value = response.data
         pagination.value = response.pagination
     } catch (error) {
         console.error('Failed to fetch data:', error)
@@ -50,23 +54,11 @@ const onPage = (event: {
     pagination.value.page = event.page + 1
     pagination.value.limit = event.rows
 
-    fetchChecklists()
-}
-
-const formatDate = (date: string | null) => {
-    if (!date) {
-        return '-'
-    }
-
-    return new Intl.DateTimeFormat('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-    }).format(new Date(date))
+    fetchChecklistItems()
 }
 
 onMounted(() => {
-    fetchChecklists()
+    fetchChecklistItems()
 })
 
 const showCreateModal = ref(false)
@@ -78,134 +70,113 @@ const goToCreate = (): void => {
 const onCreateSuccess = async (): Promise<void> => {
     showCreateModal.value = false
 
-    await fetchChecklists()
-}
-
-const viewChecklist = (data: Checklist): void => {
-    router.push(`/checklist/${data.id}`)
+    await fetchChecklistItems()
 }
 
 const showEditModal = ref(false)
-const selectedChecklistId = ref<number | null>(null)
+const selectedChecklistItemId = ref<number | null>(null)
 
-const editChecklist = (data: Checklist): void => {
-    selectedChecklistId.value = data.id
+const editChecklistItem = (data: ChecklistItem): void => {
+    selectedChecklistItemId.value = data.id
     showEditModal.value = true
 }
 
 const onEditSuccess = async (): Promise<void> => {
     showEditModal.value = false
-    selectedChecklistId.value = null
+    selectedChecklistItemId.value = null
 
-    await fetchChecklists()
+    await fetchChecklistItems()
 }
 
 const onEditCancel = (): void => {
     showEditModal.value = false
-    selectedChecklistId.value = null
+    selectedChecklistItemId.value = null
 }
 
 const showDeleteModal = ref(false)
-const selectedChecklist = ref<Checklist | null>(null)
+const selectedChecklistItem = ref<ChecklistItem | null>(null)
 const deleting = ref(false)
 
-const deleteAction = (data: Checklist): void => {
-    selectedChecklist.value = data
+const deleteAction = (data: ChecklistItem): void => {
+    selectedChecklistItem.value = data
     showDeleteModal.value = true
 }
 
-const confirmDeleteChecklist = async (): Promise<void> => {
-    if (!selectedChecklist.value) return
+const confirmDeleteChecklistItem = async (): Promise<void> => {
+    if (!selectedChecklistItem.value) return
 
     try {
         deleting.value = true
 
-        await deleteChecklist(selectedChecklist.value.id)
+        await deleteChecklistItem(selectedChecklistItem.value.id)
 
         showDeleteModal.value = false
-        selectedChecklist.value = null
+        selectedChecklistItem.value = null
 
-        await fetchChecklists()
+        await fetchChecklistItems()
     } finally {
         deleting.value = false
     }
 }
 
-const getStatusSeverity = (status: number) => {
-    switch (status) {
-        case 1:
-            return 'success'
-        case 0:
-            return 'warn'
-        default:
-            return 'secondary'
-    }
+const checklist = ref<any>(null)
+
+const loadChecklist = async () => {
+    const response = await getChecklist(checklist_id)
+    checklist.value = response.data
 }
 
-const openChecklistItem = (data: Checklist) => {
-    router.push(`/checklist/${data.id}/checklist-item`)
+onMounted(() => {
+    loadChecklist()
+})
+
+const goBack = (): void => {
+    router.push('/checklist')
 }
 </script>
 
 <template>
     <div class="min-h-screen bg-slate-50 p-12 text-slate-900">
         <div class="mb-12 flex items-center justify-between">
-            <h1 class="text-2xl font-semibold tracking-tight text-slate-900">
-                Checklists
-            </h1>
+            <div class="flex items-center gap-5">
+                <Button type="button" label="Back" severity="secondary" outlined @click="goBack()" />
+                <h1 class="text-2xl font-semibold tracking-tight text-slate-900">
+                    {{ checklist?.name }}
+                </h1>
+            </div>
 
             <div class="flex items-center gap-3">
                 <input v-model="search" type="text" placeholder="Search..."
                     class="w-64 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-                    @keyup.enter="fetchChecklists" />
+                    @keyup.enter="fetchChecklistItems" />
 
                 <button
                     class="rounded-md bg-sky-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-600 cursor-pointer"
-                    @click="fetchChecklists">
+                    @click="fetchChecklistItems">
                     Search
                 </button>
 
                 <button
                     class="rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-600 cursor-pointer"
                     @click="goToCreate">
-                    Add Checklist
+                    Add Checklist Item
                 </button>
             </div>
         </div>
 
         <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <DataTable :value="checklist" :loading="loading" lazy paginator :rows="pagination.limit"
+            <DataTable :value="checklistItem" :loading="loading" lazy paginator :rows="pagination.limit"
                 :total-records="pagination.total" :rows-per-page-options="[10, 20, 50]" @page="onPage"
                 table-style="min-width: 100%">
-                <Column field="name" header="Name" />
 
-                <Column field="description" header="Description" />
-
-                <Column field="is_active" header="Status">
-                    <template #body="{ data }">
-                        <Tag :value="data.is_active ? 'Active' : 'Inactive'"
-                            :severity="getStatusSeverity(data.is_active)" />
-                    </template>
-                </Column>
+                <Column field="title" header="Title" />
 
                 <Column header="Action" style="width: 180px">
                     <template #body="{ data }">
                         <div class="flex gap-2">
-                            <Button severity="success"
-                                class="!bg-green-500 !border-green-500 !text-white w-8 h-8 flex items-center justify-center rounded-sm cursor-pointer ml-2"
-                                v-tooltip.top="'Checklist Item'" @click="openChecklistItem(data)">
-                                <i class="pi pi-list-check !text-white"></i>
-                            </Button>
-
-                            <Button severity="info"
-                                class="!bg-blue-500 !border-blue-500 !text-white w-8 h-8 flex items-center justify-center rounded-sm cursor-pointer"
-                                v-tooltip.top="'View'" @click="viewChecklist(data)">
-                                <i class="pi pi-eye !text-white"></i>
-                            </Button>
-
                             <Button severity="warning"
                                 class="!bg-yellow-500 !border-yellow-500 !text-white w-8 h-8 flex items-center justify-center rounded-sm cursor-pointer"
-                                v-tooltip.top="'Edit'" @click="editChecklist(data)">
+                                v-tooltip.top="'Edit'" @click="editChecklistItem(data)">
                                 <i class="pi pi-pencil !text-white"></i>
                             </Button>
 
@@ -221,10 +192,10 @@ const openChecklistItem = (data: Checklist) => {
         </div>
     </div>
 
-    <ChecklistCreate v-model:visible="showCreateModal" @success="onCreateSuccess" />
-    <ChecklistEdit v-model:visible="showEditModal" :id="selectedChecklistId" @success="onEditSuccess"
+    <ChecklistItemCreate v-model:visible="showCreateModal" @success="onCreateSuccess" />
+    <ChecklistItemEdit v-model:visible="showEditModal" :id="selectedChecklistItemId" @success="onEditSuccess"
         @cancel="onEditCancel" />
 
-    <DeleteConfirmationModal v-model:visible="showDeleteModal" :data="selectedChecklist" :loading="deleting"
-        @confirm="confirmDeleteChecklist" />
+    <DeleteConfirmationModal v-model:visible="showDeleteModal" :data="selectedChecklistItem" :loading="deleting"
+        @confirm="confirmDeleteChecklistItem" />
 </template>

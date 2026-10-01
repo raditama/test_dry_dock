@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
-import type { Checklist, ChecklistFormData } from '@/types/checklist'
-import { Checkbox } from 'primevue'
+import type { ChecklistItem, ChecklistItemFormData } from '@/types/checklist-item'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const props = withDefaults(
     defineProps<{
-        modelValue?: Partial<Checklist>
+        modelValue?: Partial<ChecklistItem>
         loading?: boolean
         mode?: 'create' | 'edit'
     }>(),
@@ -20,14 +21,15 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-    submit: [data: ChecklistFormData]
+    submit: [data: ChecklistItemFormData]
     cancel: []
 }>()
 
-const form = reactive<ChecklistFormData>({
-    name: props.modelValue.name ?? '',
-    description: props.modelValue.description ?? null,
-    is_active: Boolean(props.modelValue.is_active) ?? false,
+const checklist_id = Number(route.params.checklist_id)
+
+const form = reactive<ChecklistItemFormData>({
+    title: props.modelValue.title ?? '',
+    checklist_id: checklist_id
 })
 
 const submit = () => {
@@ -43,17 +45,9 @@ const submit = () => {
                 <div class="grid grid-cols-1 gap-6">
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
-                            Name
+                            Title
                         </label>
-                        <InputText v-model="form.name" class="w-full" placeholder="Enter checklist name" required />
-                    </div>
-
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-slate-700">
-                            Description
-                        </label>
-                        <Textarea v-model="form.description" class="w-full" placeholder="Enter checklist description"
-                            rows="4" />
+                        <InputText v-model="form.title" class="w-full" placeholder="Enter checklist item title" required />
                     </div>
                 </div>
             </div>

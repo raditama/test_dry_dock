@@ -18,14 +18,12 @@ export class WorkOrderMasterRepository {
 
         if (search) {
             conditions.push(`
-                (
                     job_code LIKE ?
-                )
             `);
 
             const searchValue = `%${search}%`;
 
-            params.push(searchValue, searchValue);
+            params.push(searchValue);
         }
 
         const whereClause =

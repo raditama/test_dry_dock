@@ -24,14 +24,11 @@ export class ChecklistItemRepository {
 
         if (search) {
             conditions.push(`
-                (
                     title LIKE ?
-                )
             `);
 
             const searchValue = `%${search}%`;
-
-            params.push(searchValue, searchValue);
+            params.push(searchValue);
         }
 
         const whereClause =

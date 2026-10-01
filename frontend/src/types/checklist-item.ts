@@ -2,9 +2,8 @@ import type { Pagination } from "./pagination"
 
 export interface ChecklistItem {
     id: number;
-    name: string;
-    description: string | null;
-    is_active: boolean;
+    checklist_id: number;
+    title: string;
 }
 
 export interface ChecklistItemResponse {
@@ -15,7 +14,6 @@ export interface ChecklistItemResponse {
 }
 
 export interface ChecklistItemFormData {
-    name: string;
-    description: string | null;
-    is_active: boolean;
+    checklist_id: number;
+    title: string;
 }

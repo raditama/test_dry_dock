@@ -23,6 +23,11 @@ const router = createRouter({
             name: 'checklist-detail',
             component: () => import('@/views/checklist/ChecklistDetail.vue'),
         },
+        {
+            path: '/checklist/:checklist_id/checklist-item',
+            name: 'checklist-item',
+            component: () => import('@/views/checklist-item/ChecklistItems.vue'),
+        },
     ],
 })
 

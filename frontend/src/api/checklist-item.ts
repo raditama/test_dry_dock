@@ -5,6 +5,7 @@ export interface GetChecklistItemsParams {
     page?: number
     limit?: number
     search?: string
+    checklist_id?: number
 }
 
 export const getChecklistItems = async (
@@ -15,6 +16,7 @@ export const getChecklistItems = async (
             page: params.page ?? 1,
             limit: params.limit ?? 10,
             search: params.search ?? '',
+            checklist_id: params.checklist_id ?? undefined,
         },
     })
 
