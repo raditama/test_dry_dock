@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Dialog from 'primevue/dialog'
-import DryDockForm from '@/components/dry-dock/DryDockForm.vue'
+import DryDockForm from './DryDockForm.vue'
 import { createDryDock } from '@/api/dryDock'
 
 interface DryDockFormData {

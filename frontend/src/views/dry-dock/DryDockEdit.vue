@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
-import DryDockForm from '@/components/dry-dock/DryDockForm.vue'
 import {
     getDryDock,
     updateDryDock,
 } from '@/api/dryDock'
 import type { DryDock } from '@/types/dryDock'
+import DryDockForm from './DryDockForm.vue'
 
 interface Props {
     visible: boolean
