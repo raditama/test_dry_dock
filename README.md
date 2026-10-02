@@ -13,8 +13,8 @@ Make sure the following are installed:
 Clone the repository:
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
+git clone https://github.com/raditama/test_dry_dock.git
+cd test_dry_dock
 ```
 
 ### Backend
