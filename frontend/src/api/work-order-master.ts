@@ -1,25 +1,10 @@
-import type { GetListParams } from '@/types/pagination'
 import api from './client'
-import type { GetWorkOrderMasterGroupParams, WorkOrderMasterGroupResponse, WorkOrderMasterResponse } from '@/types/work-order-master'
-
-export const getWorkOrderMasters = async (
-    params: GetListParams = {},
-): Promise<WorkOrderMasterResponse> => {
-    const response = await api.get<WorkOrderMasterResponse>('/work-order-master', {
-        params: {
-            page: params.page ?? 1,
-            limit: params.limit ?? 10,
-            search: params.search ?? '',
-        },
-    })
-
-    return response.data
-}
+import type { GetWorkOrderMasterGroupParams, WorkOrderMasterGroupResponse } from '@/types/work-order-master'
 
 export const getWorkOrderMasterGroup = async (
     params: GetWorkOrderMasterGroupParams = {},
 ): Promise<WorkOrderMasterGroupResponse> => {
-    const response = await api.get<WorkOrderMasterGroupResponse>('/work-order-master/group', {
+    const response = await api.get<WorkOrderMasterGroupResponse>('/work-order-master', {
         params: {
             search: params.search ?? '',
         },

@@ -165,7 +165,7 @@ const goBack = (): void => {
         </div>
 
         <div class="overflow-hidden rounded-lg border border-slate-200 bg-white">
-            <DataTable :value="checklistItem" :loading="loading" lazy paginator :rows="pagination.limit"
+            <DataTable v-if="checklistItem && checklistItem.length > 0" :value="checklistItem" :loading="loading" lazy paginator :rows="pagination.limit"
                 :total-records="pagination.total" :rows-per-page-options="[10, 20, 50]" @page="onPage"
                 table-style="min-width: 100%">
 
@@ -189,6 +189,14 @@ const goBack = (): void => {
                     </template>
                 </Column>
             </DataTable>
+
+            <div v-else class="rounded-lg border border-slate-200 bg-white p-8 text-center">
+                <i class="pi pi-inbox text-4xl text-slate-400"></i>
+
+                <p class="mt-3 text-slate-500">
+                    Data not found.
+                </p>
+            </div>
         </div>
     </div>
 

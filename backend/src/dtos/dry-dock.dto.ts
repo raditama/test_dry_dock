@@ -1,4 +1,4 @@
-import { DryDockPriority, DryDockStatus } from "../interfaces/dry-dock.interface";
+import { DryDockPriority, DryDockStatus } from "../models/dry-dock.model";
 
 export interface DryDockPayload {
     vessel: string;

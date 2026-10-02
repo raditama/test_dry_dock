@@ -1,208 +1,79 @@
-import { ResultSetHeader, RowDataPacket } from 'mysql2';
-import { DryDock } from '../interfaces/dry-dock.interface';
-import dbPool from '../config/database';
-import { PaginationQuery } from '../dtos/pagination.dto';
-import { DryDockPayload } from '../dtos/dry-dock.dto';
+import { RowDataPacket } from "mysql2/promise";
+import { IDryDockRepository } from "../interfaces/dry-dock.interface";
+import { DryDockPayload } from "../dtos/dry-dock.dto";
+import { BaseRepository } from "../shared/base/base.repository";
+import {
+    DryDock,
+    DryDockPriority,
+    DryDockStatus,
+} from "../models/dry-dock.model";
 
-interface DryDockRow extends RowDataPacket, DryDock { }
+interface DryDockRow extends RowDataPacket {
+    id: number;
+    vessel: string;
+    dock_list_no: string;
+    description: string | null;
+    shipyard_name: string | null;
+    shipyard_detail: string | null;
+    planned_start_date: Date | null;
+    planned_end_date: Date | null;
+    actual_start_date: Date | null;
+    actual_end_date: Date | null;
+    account_code: string | null;
+    budget: number | null;
+    responsible_bank: string | null;
+    status: DryDockStatus;
+    priority: DryDockPriority;
+}
 
-export class DryDockRepository {
-    async findAll(
-        query: PaginationQuery
-    ): Promise<{ data: DryDock[]; total: number }> {
-        const { page, limit, search } = query;
+export class DryDockRepository
+    extends BaseRepository<DryDock, DryDockRow, DryDockPayload>
+    implements IDryDockRepository {
+    protected readonly tableName = "dry_dock";
 
-        const offset = (page - 1) * limit;
-        const conditions: string[] = [];
-        const params: any[] = [];
+    protected readonly columns = [
+        "id",
+        "vessel",
+        "dock_list_no",
+        "description",
+        "shipyard_name",
+        "shipyard_detail",
+        "planned_start_date",
+        "planned_end_date",
+        "actual_start_date",
+        "actual_end_date",
+        "account_code",
+        "budget",
+        "responsible_bank",
+        "status",
+        "priority",
+    ] as const;
 
-        if (search) {
-            conditions.push(`
-                (
-                    vessel LIKE ?
-                    OR dock_list_no LIKE ?
-                )
-            `);
+    protected readonly searchableColumns = [
+        "vessel",
+        "dock_list_no",
+        "shipyard_name",
+    ] as const;
 
-            const searchValue = `%${search}%`;
+    protected readonly orderBy = "id DESC";
 
-            params.push(searchValue, searchValue);
-        }
-
-        const whereClause =
-            conditions.length > 0
-                ? `WHERE ${conditions.join(' AND ')}`
-                : '';
-
-        const [rows] = await dbPool.query<DryDockRow[]>(
-            `
-            SELECT
-                id,
-                vessel,
-                dock_list_no,
-                description,
-                shipyard_name,
-                shipyard_detail,
-                DATE_FORMAT(planned_start_date, '%Y-%m-%d') AS planned_start_date,
-                DATE_FORMAT(planned_end_date, '%Y-%m-%d') AS planned_end_date,
-                DATE_FORMAT(actual_start_date, '%Y-%m-%d') AS actual_start_date,
-                DATE_FORMAT(actual_end_date, '%Y-%m-%d') AS actual_end_date,
-                account_code,
-                budget,
-                responsible_bank,
-                status,
-                priority
-            FROM dry_dock
-            ${whereClause}
-            ORDER BY id DESC
-            LIMIT ? OFFSET ?
-            `,
-            [...params, limit, offset]
+    protected toEntity(row: DryDockRow): DryDock {
+        return new DryDock(
+            row.id,
+            row.vessel,
+            row.dock_list_no,
+            row.description,
+            row.shipyard_name,
+            row.shipyard_detail,
+            row.planned_start_date,
+            row.planned_end_date,
+            row.actual_start_date,
+            row.actual_end_date,
+            row.account_code,
+            row.budget,
+            row.responsible_bank,
+            row.status,
+            row.priority,
         );
-
-        const [countRows] = await dbPool.query<RowDataPacket[]>(
-            `
-            SELECT COUNT(*) AS total
-            FROM dry_dock
-            ${whereClause}
-            `,
-            params
-        );
-
-        const total = Number(countRows[0].total);
-
-        return {
-            data: rows,
-            total,
-        };
-    }
-
-    async findById(id: number): Promise<DryDock | null> {
-        const [rows] = await dbPool.query<DryDockRow[]>(
-            `
-            SELECT
-                id,
-                vessel,
-                dock_list_no,
-                description,
-                shipyard_name,
-                shipyard_detail,
-                DATE_FORMAT(planned_start_date, '%Y-%m-%d') AS planned_start_date,
-                DATE_FORMAT(planned_end_date, '%Y-%m-%d') AS planned_end_date,
-                DATE_FORMAT(actual_start_date, '%Y-%m-%d') AS actual_start_date,
-                DATE_FORMAT(actual_end_date, '%Y-%m-%d') AS actual_end_date,
-                account_code,
-                budget,
-                responsible_bank,
-                status,
-                priority
-            FROM dry_dock
-            WHERE id = ?
-            LIMIT 1
-            `,
-            [id]
-        );
-
-        return rows.length > 0 ? rows[0] : null;
-    }
-
-    async create(data: DryDockPayload): Promise<number> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            INSERT INTO dry_dock (
-                vessel,
-                dock_list_no,
-                description,
-                shipyard_name,
-                shipyard_detail,
-                planned_start_date,
-                planned_end_date,
-                actual_start_date,
-                actual_end_date,
-                account_code,
-                budget,
-                responsible_bank,
-                status,
-                priority
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `,
-            [
-                data.vessel,
-                data.dock_list_no,
-                data.description,
-                data.shipyard_name,
-                data.shipyard_detail,
-                data.planned_start_date,
-                data.planned_end_date,
-                data.actual_start_date,
-                data.actual_end_date,
-                data.account_code,
-                data.budget,
-                data.responsible_bank,
-                data.status,
-                data.priority,
-            ]
-        );
-
-        return result.insertId;
-    }
-
-    async update(
-        id: number,
-        data: DryDockPayload
-    ): Promise<boolean> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            UPDATE dry_dock
-            SET
-                vessel = ?,
-                dock_list_no = ?,
-                description = ?,
-                shipyard_name = ?,
-                shipyard_detail = ?,
-                planned_start_date = ?,
-                planned_end_date = ?,
-                actual_start_date = ?,
-                actual_end_date = ?,
-                account_code = ?,
-                budget = ?,
-                responsible_bank = ?,
-                status = ?,
-                priority = ?
-            WHERE id = ?
-            `,
-            [
-                data.vessel,
-                data.dock_list_no,
-                data.description,
-                data.shipyard_name,
-                data.shipyard_detail,
-                data.planned_start_date,
-                data.planned_end_date,
-                data.actual_start_date,
-                data.actual_end_date,
-                data.account_code,
-                data.budget,
-                data.responsible_bank,
-                data.status,
-                data.priority,
-                id,
-            ]
-        );
-
-        return result.affectedRows > 0;
-    }
-
-    async delete(id: number): Promise<boolean> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            DELETE FROM dry_dock
-            WHERE id = ?
-            `,
-            [id]
-        );
-
-        return result.affectedRows > 0;
     }
 }

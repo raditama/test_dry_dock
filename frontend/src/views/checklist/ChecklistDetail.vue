@@ -87,7 +87,7 @@ onMounted(() => {
                         </p>
 
                         <p class="mt-1 font-medium text-slate-800">
-                            {{ checklist.is_active || '-' }}
+                            {{ checklist.is_active ? 'Active' : 'Inactive' }}
                         </p>
                     </div>
                 </div>

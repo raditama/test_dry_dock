@@ -1,17 +1,37 @@
 import { Router } from 'express';
-import { ChecklistRepository } from '../repositories/checklist.repository';
-import { ChecklistService } from '../services/checklist.service';
 import { ChecklistController } from '../controllers/checklist.controller';
+import { IRoute } from '../interfaces/route.interface';
 
-const router = Router();
-const checklistRepository = new ChecklistRepository();
-const checklistService = new ChecklistService(checklistRepository);
-const checklistController = new ChecklistController(checklistService);
+export class ChecklistRoutes implements IRoute {
+    public readonly path = '/api/checklist';
+    public readonly router: Router = Router();
 
-router.get('/', checklistController.getAllChecklists);
-router.get('/:id', checklistController.getChecklistById);
-router.post('/', checklistController.createChecklist);
-router.put('/:id', checklistController.updateChecklist);
-router.delete('/:id', checklistController.deleteChecklist);
+    constructor(
+        private readonly checklistController: ChecklistController
+    ) {
+        this.initRoutes();
+    }
 
-export default router;
+    private initRoutes(): void {
+        this.router.get(
+            '/',
+            this.checklistController.getAllChecklists,
+        );
+        this.router.get(
+            '/:id',
+            this.checklistController.getChecklistById,
+        );
+        this.router.post(
+            '/',
+            this.checklistController.createChecklist,
+        );
+        this.router.put(
+            '/:id',
+            this.checklistController.updateChecklist,
+        );
+        this.router.delete(
+            '/:id',
+            this.checklistController.deleteChecklist,
+        );
+    }
+}

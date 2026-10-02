@@ -55,6 +55,14 @@ const submit = () => {
                         <Textarea v-model="form.description" class="w-full" placeholder="Enter checklist description"
                             rows="4" />
                     </div>
+
+                    <div class="flex items-center gap-3">
+                        <Checkbox v-model="form.is_active" :binary="true" input-id="is_active" />
+
+                        <label for="is_active" class="text-sm font-medium text-slate-700">
+                            Active
+                        </label>
+                    </div>
                 </div>
             </div>
 

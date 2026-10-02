@@ -9,7 +9,6 @@ import { useRouter } from 'vue-router'
 import DeleteConfirmationModal from '@/components/data-table/DeleteConfirmationModal.vue'
 import DryDockCreate from './DryDockCreate.vue'
 import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
 import DryDockEdit from './DryDockEdit.vue'
 import type { Pagination } from '@/types/pagination.ts'
 

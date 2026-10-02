@@ -1,138 +1,44 @@
-import { ResultSetHeader, RowDataPacket } from 'mysql2';
-import { ChecklistItem } from '../interfaces/checklist-item.interface';
-import dbPool from '../config/database';
-import { PaginationQuery } from '../dtos/pagination.dto';
-import { ChecklistItemPayload } from '../dtos/checklist-item.dto';
+import { RowDataPacket } from "mysql2/promise";
+import { ChecklistItemQuery, IChecklistItemRepository } from "../interfaces/checklist-item.interface";
+import { ChecklistItemPayload } from "../dtos/checklist-item.dto";
+import { BaseRepository } from "../shared/base/base.repository";
+import { ChecklistItem } from "../models/checklist-item.model";
+import { PaginatedResult } from "../interfaces/repository.interface";
 
-interface ChecklistItemRow extends RowDataPacket, ChecklistItem { }
+interface ChecklistItemRow extends RowDataPacket {
+    id: number;
+    checklist_id: number;
+    title: string;
+}
 
-export class ChecklistItemRepository {
-    async findAll(
-        query: PaginationQuery,
-        checklist_id?: number
-    ): Promise<{ data: ChecklistItem[]; total: number }> {
-        const { page, limit, search } = query;
+export class ChecklistItemRepository
+    extends BaseRepository<ChecklistItem, ChecklistItemRow, ChecklistItemPayload>
+    implements IChecklistItemRepository {
+    protected readonly tableName = "checklist_item";
 
-        const offset = (page - 1) * limit;
-        const conditions: string[] = [];
-        const params: any[] = [];
+    protected readonly columns = [
+        "id",
+        "checklist_id",
+        "title",
+    ] as const;
 
-        if (checklist_id != null) {
-            conditions.push(`checklist_id = ?`);
-            params.push(checklist_id);
-        }
+    protected readonly searchableColumns = ["title"] as const;
 
-        if (search) {
-            conditions.push(`
-                    title LIKE ?
-            `);
+    protected readonly orderBy = "id DESC";
 
-            const searchValue = `%${search}%`;
-            params.push(searchValue);
-        }
-
-        const whereClause =
-            conditions.length > 0
-                ? `WHERE ${conditions.join(' AND ')}`
-                : '';
-
-        const [rows] = await dbPool.query<ChecklistItemRow[]>(
-            `
-            SELECT
-                id,
-                checklist_id,
-                title
-            FROM checklist_item
-            ${whereClause}
-            ORDER BY id DESC
-            LIMIT ? OFFSET ?
-            `,
-            [...params, limit, offset]
-        );
-
-        const [countRows] = await dbPool.query<RowDataPacket[]>(
-            `
-            SELECT COUNT(*) AS total
-            FROM checklist_item
-            ${whereClause}
-            `,
-            params
-        );
-
-        const total = Number(countRows[0].total);
-
-        return {
-            data: rows,
-            total,
-        };
+    findAll(
+        query: ChecklistItemQuery,
+    ): Promise<PaginatedResult<ChecklistItem>> {
+        return super.findAll(query, {
+            checklist_id: query.checklist_id,
+        });
     }
 
-    async findById(id: number): Promise<ChecklistItem | null> {
-        const [rows] = await dbPool.query<ChecklistItemRow[]>(
-            `
-            SELECT
-                id,
-                checklist_id,
-                title
-            FROM checklist_item
-            WHERE id = ?
-            LIMIT 1
-            `,
-            [id]
+    protected toEntity(row: ChecklistItemRow): ChecklistItem {
+        return new ChecklistItem(
+            row.id,
+            row.checklist_id,
+            row.title,
         );
-
-        return rows.length > 0 ? rows[0] : null;
-    }
-
-    async create(data: ChecklistItemPayload): Promise<number> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            INSERT INTO checklist_item (
-                checklist_id,
-                title
-            )
-            VALUES (?, ?)
-            `,
-            [
-                data.checklist_id,
-                data.title,
-            ]
-        );
-
-        return result.insertId;
-    }
-
-    async update(
-        id: number,
-        data: ChecklistItemPayload
-    ): Promise<boolean> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            UPDATE checklist_item
-            SET
-                checklist_id = ?,
-                title = ?
-            WHERE id = ?
-            `,
-            [
-                data.checklist_id,
-                data.title,
-                id,
-            ]
-        );
-
-        return result.affectedRows > 0;
-    }
-
-    async delete(id: number): Promise<boolean> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            DELETE FROM checklist_item
-            WHERE id = ?
-            `,
-            [id]
-        );
-
-        return result.affectedRows > 0;
     }
 }

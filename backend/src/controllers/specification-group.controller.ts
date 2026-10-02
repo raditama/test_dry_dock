@@ -1,128 +1,107 @@
-import { Request, Response } from "express";
-import { SpecificationGroupService } from "../services/specification-group.service";
-import { SpecificationGroupPayload } from "../dtos/specification-group.dto";
-import { sendError, sendSuccess } from "../shared/utils/response";
-import { PaginationQuery } from "../dtos/pagination.dto";
+import { ISpecificationGroupService } from '../interfaces/specification-group.interface';
+import { BaseController } from '../shared/base/base.controller';
+import { sendSuccess } from '../shared/utils/response';
 
-export class SpecificationGroupController {
-    constructor(private specificationGroupService: SpecificationGroupService) { }
+export class SpecificationGroupController extends BaseController {
+    constructor(
+        private readonly specificationGroupService: ISpecificationGroupService,
+    ) {
+        super();
+    }
 
-    getAllSpecificationGroups = async (req: Request, res: Response): Promise<void> => {
-        const page = Number(req.query.page) || 1;
-        const limit = Number(req.query.limit) || 10;
-        const search = req.query.search
-            ? String(req.query.search).trim()
-            : undefined;
+    getAllSpecificationGroups = this.handle(async (req, res) => {
+        const query = this.parsePagination(req);
 
-        if (page < 1) {
-            sendError(res, 500, "INVALID_PARAMETER", "Page must be greater than 0");
-            return;
-        }
-
-        if (limit < 1) {
-            sendError(res, 500, "INVALID_PARAMETER", "Limit must be greater than 0");
-            return;
-        }
-
-        const query: PaginationQuery = {
-            page,
-            limit,
-            search,
-        };
-
-        const data = await this.specificationGroupService.getAllSpecificationGroups(query);
+        const specificationGroups =
+            await this.specificationGroupService
+                .getAllSpecificationGroups(query);
 
         sendSuccess(
             res,
-            "Successfully retrieved data",
-            data.data,
+            'Successfully retrieved specification groups',
+            specificationGroups.data,
             undefined,
-            data.pagination,
+            specificationGroups.pagination,
         );
-    };
+    });
 
-    getSpecificationGroupById = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
+    getSpecificationGroupById = this.handle(async (req, res) => {
+        const id = this.parseId(req);
 
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 404, "INVALID_PARAMETER", "Invalid id");
-            return;
+        const specificationGroup =
+            await this.specificationGroupService
+                .getSpecificationGroupById(id);
+
+        if (!specificationGroup) {
+            this.throwNotFound('Specification group not found');
         }
 
-        const data = await this.specificationGroupService.getSpecificationGroupById(id);
+        sendSuccess(
+            res,
+            'Successfully retrieved specification group',
+            specificationGroup,
+        );
+    });
 
-        sendSuccess(res, "Successfully retrieved data", data);
-    };
+    createSpecificationGroup = this.handle(async (req, res) => {
+        const id =
+            await this.specificationGroupService
+                .createSpecificationGroup(req.body);
 
-    createSpecificationGroup = async (req: Request, res: Response): Promise<void> => {
-        const {
-            group_no,
-            name,
-            sort_order,
-        } = req.body;
+        sendSuccess(
+            res,
+            'Successfully created specification group',
+            { id },
+            201,
+        );
+    });
 
-        if (!group_no || !name || !sort_order) {
-            sendError(res, 500, "INVALID_PARAMETER", "Required fields are missing");
-            return;
+    updateSpecificationGroup = this.handle(async (req, res) => {
+        const id = this.parseId(req);
+
+        const updated =
+            await this.specificationGroupService
+                .updateSpecificationGroup(
+                    id,
+                    req.body,
+                );
+
+        if (!updated) {
+            this.throwNotFound('Specification group not found');
         }
 
-        const data: SpecificationGroupPayload = {
-            group_no: String(group_no).trim(),
-            name: String(name).trim(),
-            sort_order: sort_order,
-        };
+        sendSuccess(
+            res,
+            'Successfully updated specification group',
+        );
+    });
 
-        await this.specificationGroupService.createSpecificationGroup(data);
+    deleteSpecificationGroup = this.handle(async (req, res) => {
+        const id = this.parseId(req);
 
-        sendSuccess(res, "Successfully created data");
-    };
+        const deleted =
+            await this.specificationGroupService
+                .deleteSpecificationGroup(id);
 
-    updateSpecificationGroup = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 500, "INVALID_PARAMETER", "Invalid id");
-            return;
+        if (!deleted) {
+            this.throwNotFound('Specification group not found');
         }
 
-        const {
-            group_no,
-            name,
-            sort_order,
-        } = req.body;
+        sendSuccess(
+            res,
+            'Successfully deleted specification group',
+        );
+    });
 
-        if (!group_no || !name || !sort_order) {
-            sendError(res, 500, "INVALID_PARAMETER", "Required fields are missing");
-            return;
-        }
+    getSpecificationGroupOptions = this.handle(async (req, res) => {
+        const specificationGroups =
+            await this.specificationGroupService
+                .getSpecificationGroupOptions();
 
-        const data: SpecificationGroupPayload = {
-            group_no: String(group_no).trim(),
-            name: String(name).trim(),
-            sort_order: sort_order,
-        };
-
-        await this.specificationGroupService.updateSpecificationGroup(id, data);
-
-        sendSuccess(res, "Successfully updated data");
-    };
-
-    deleteSpecificationGroup = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 500, "INVALID_PARAMETER", "Invalid id");
-            return;
-        }
-
-        await this.specificationGroupService.deleteSpecificationGroup(id);
-
-        sendSuccess(res, "Successfully deleted data");
-    };
-
-    getSpecificationGroupLov = async (req: Request, res: Response): Promise<void> => {
-        const data = await this.specificationGroupService.getSpecificationGroupLov();
-
-        sendSuccess(res, 'Successfully retrieved data', data);
-    };
+        sendSuccess(
+            res,
+            'Successfully retrieved specification group options',
+            specificationGroups,
+        );
+    });
 }
