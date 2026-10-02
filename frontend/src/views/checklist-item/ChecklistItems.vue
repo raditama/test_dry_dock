@@ -171,6 +171,8 @@ const goBack = (): void => {
 
                 <Column field="title" header="Title" />
 
+                <Column field="data_type" header="Data Type" />
+
                 <Column header="Action" style="width: 180px">
                     <template #body="{ data }">
                         <div class="flex gap-2">

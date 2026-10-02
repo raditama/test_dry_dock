@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2/promise";
-import { ChecklistItemQuery, IChecklistItemRepository } from "../interfaces/checklist-item.interface";
-import { ChecklistItemPayload } from "../dtos/checklist-item.dto";
+import { IChecklistItemRepository } from "../interfaces/checklist-item.interface";
+import { ChecklistItemPayload, ChecklistItemQuery } from "../dtos/checklist-item.dto";
 import { BaseRepository } from "../shared/base/base.repository";
 import { ChecklistItem } from "../models/checklist-item.model";
 import { PaginatedResult } from "../interfaces/repository.interface";
@@ -9,6 +9,7 @@ interface ChecklistItemRow extends RowDataPacket {
     id: number;
     checklist_id: number;
     title: string;
+    data_type: string;
 }
 
 export class ChecklistItemRepository
@@ -20,6 +21,7 @@ export class ChecklistItemRepository
         "id",
         "checklist_id",
         "title",
+        "data_type",
     ] as const;
 
     protected readonly searchableColumns = ["title"] as const;
@@ -39,6 +41,7 @@ export class ChecklistItemRepository
             row.id,
             row.checklist_id,
             row.title,
+            row.data_type,
         );
     }
 }

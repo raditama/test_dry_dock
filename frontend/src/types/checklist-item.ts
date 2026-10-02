@@ -4,6 +4,7 @@ export interface ChecklistItem {
     id: number;
     checklist_id: number;
     title: string;
+    data_type: string;
 }
 
 export interface ChecklistItemResponse {
@@ -16,6 +17,7 @@ export interface ChecklistItemResponse {
 export interface ChecklistItemFormData {
     checklist_id: number;
     title: string;
+    data_type: string;
 }
 
 export interface GetChecklistItemsParams {

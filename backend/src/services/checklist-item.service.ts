@@ -59,6 +59,7 @@ export class ChecklistItemService
             id: checklistItem.id,
             checklist_id: checklistItem.checklistId,
             title: checklistItem.title,
+            data_type: checklistItem.data_type,
         };
     }
 }

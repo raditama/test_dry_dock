@@ -151,9 +151,9 @@ const confirmDeleteSpecificationGroup = async (): Promise<void> => {
                 :total-records="pagination.total" :rows-per-page-options="[10, 20, 50]" @page="onPage"
                 table-style="min-width: 100%">
 
-                <Column field="group_no" header="Description" />
-
                 <Column field="name" header="Name" />
+                
+                <Column field="group_no" header="Group No" />
 
                 <Column field="sort_order" header="Sort Order" />
 

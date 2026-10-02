@@ -29,6 +29,7 @@ const checklist_id = Number(route.params.checklist_id)
 
 const form = reactive<ChecklistItemFormData>({
     title: props.modelValue.title ?? '',
+    data_type: props.modelValue.data_type ?? '',
     checklist_id: checklist_id
 })
 
@@ -48,6 +49,13 @@ const submit = () => {
                             Title
                         </label>
                         <InputText v-model="form.title" class="w-full" placeholder="Enter checklist item title" required />
+                    </div>
+
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-slate-700">
+                            Data Type
+                        </label>
+                        <InputText v-model="form.data_type" class="w-full" placeholder="Enter checklist item title" required />
                     </div>
                 </div>
             </div>
