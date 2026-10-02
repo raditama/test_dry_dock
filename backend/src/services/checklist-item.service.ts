@@ -1,107 +1,65 @@
 import { PaginationQuery } from "../dtos/pagination.dto";
-import { ChecklistItemPayload } from "../dtos/checklist-item.dto";
-import { ChecklistItem, PaginatedChecklistItems } from "../interfaces/checklist-item.interface";
-import { ChecklistItemRepository } from "../repositories/checklist-item.repository";
-import { AppError } from "../shared/errors/app.error";
-import { ChecklistRepository } from "../repositories/checklist.repository";
+import {
+    ChecklistItemPayload,
+    ChecklistItemResponseDto,
+    PaginatedChecklistItems,
+} from "../dtos/checklist-item.dto";
+import {
+    IChecklistItemRepository,
+    IChecklistItemService,
+} from "../interfaces/checklist-item.interface";
+import { ChecklistItem } from "../models/checklist-item.model";
+import { BaseService } from "../shared/base/base.service";
 
-export class ChecklistItemService {
+export class ChecklistItemService
+    extends BaseService
+    implements IChecklistItemService {
     constructor(
-        private checklistItemRepository: ChecklistItemRepository,
-        private checklistRepository: ChecklistRepository
-    ) { }
+        private readonly checklistItemRepository: IChecklistItemRepository,
+    ) {
+        super();
+    }
 
-    async getAllChecklistItems(query: PaginationQuery, checklist_id?: number): Promise<PaginatedChecklistItems> {
-        const result = await this.checklistItemRepository.findAll(query, checklist_id);
-
-        const totalPages = Math.ceil(result.total / query.limit);
+    async getAllChecklistItems(
+        query: PaginationQuery,
+    ): Promise<PaginatedChecklistItems> {
+        const { data, total } = await this.checklistItemRepository.findAll(query);
 
         return {
-            data: result.data,
-            pagination: {
-                page: query.page,
-                limit: query.limit,
-                total: result.total,
-                totalPages,
-            },
+            data: data.map((checklistItem) => this.toDto(checklistItem)),
+            pagination: this.buildPagination(total, query),
         };
     }
 
-    async getChecklistItemById(id: number): Promise<ChecklistItem> {
-        const data = await this.checklistItemRepository.findById(id);
+    async getChecklistItemById(
+        id: number,
+    ): Promise<ChecklistItemResponseDto | null> {
+        const checklistItem = await this.checklistItemRepository.findById(id);
 
-        if (!data) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
-        }
-
-        return data;
+        return checklistItem ? this.toDto(checklistItem) : null;
     }
 
-    async createChecklistItem(data: ChecklistItemPayload): Promise<void> {
-        const checklist = await this.checklistRepository.findById(
-            data.checklist_id,
-        );
-
-        if (!checklist) {
-            throw new AppError(
-                404,
-                "RELATED_DATA_NOT_FOUND",
-                "Related data not found",
-            );
-        }
-
-        await this.checklistItemRepository.create(data);
+    async createChecklistItem(data: ChecklistItemPayload): Promise<number> {
+        return this.checklistItemRepository.create(data);
     }
 
-    async updateChecklistItem(id: number, data: ChecklistItemPayload): Promise<void> {
-        const existingData = await this.checklistItemRepository.findById(id);
-
-        if (!existingData) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
-        }
-
-        const checklist = await this.checklistRepository.findById(
-            data.checklist_id,
-        );
-
-        if (!checklist) {
-            throw new AppError(
-                404,
-                "RELATED_DATA_NOT_FOUND",
-                "Related data not found",
-            );
-        }
-
-        await this.checklistItemRepository.update(id, data);
+    async updateChecklistItem(
+        id: number,
+        data: ChecklistItemPayload,
+    ): Promise<boolean> {
+        return this.checklistItemRepository.update(id, data);
     }
 
-    async deleteChecklistItem(id: number): Promise<void> {
-        const existingData = await this.checklistItemRepository.findById(id);
+    async deleteChecklistItem(id: number): Promise<boolean> {
+        return this.checklistItemRepository.delete(id);
+    }
 
-        if (!existingData) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
-        }
-
-        try {
-            const deleted = await this.checklistItemRepository.delete(id);
-
-            if (!deleted) {
-                throw new AppError(500, "DELETE_FAILED", "Failed to delete data");
-            }
-        } catch (error: any) {
-            if (error instanceof AppError) {
-                throw error;
-            }
-
-            if (error?.code === "ER_ROW_IS_REFERENCED_2" || error?.errno === 1451) {
-                throw new AppError(
-                    409,
-                    "DATA_IN_USE",
-                    "Data cannot be deleted because it is still used by other data",
-                );
-            }
-
-            throw new AppError(500, "DELETE_FAILED", "Failed to delete data");
-        }
+    private toDto(checklistItem: ChecklistItem): ChecklistItemResponseDto {
+        return {
+            id: checklistItem.id,
+            checklist_id: checklistItem.checklistId,
+            title: checklistItem.title,
+            data_type: checklistItem.data_type,
+        };
     }
 }

@@ -45,15 +45,23 @@ const submit = () => {
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Name
                         </label>
-                        <InputText v-model="form.name" class="w-full" placeholder="Enter checklist name" required />
+                        <InputText v-model="form.name" class="w-full" placeholder="" required />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Description
                         </label>
-                        <Textarea v-model="form.description" class="w-full" placeholder="Enter checklist description"
+                        <Textarea v-model="form.description" class="w-full" placeholder=""
                             rows="4" />
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <Checkbox v-model="form.is_active" :binary="true" input-id="is_active" />
+
+                        <label for="is_active" class="text-sm font-medium text-slate-700">
+                            Active
+                        </label>
                     </div>
                 </div>
             </div>

@@ -1,113 +1,106 @@
-import { PaginationQuery } from "../dtos/pagination.dto";
-import { WorkOrderMasterPayload } from "../dtos/work-order-master.dto";
-import { WorkOrderMaster, PaginatedWorkOrderMasters, WorkOrderMasterGroup } from "../interfaces/work-order-master.interface";
-import { SpecificationGroupRepository } from "../repositories/specification-group.repository";
-import { WorkOrderMasterRepository } from "../repositories/work-order-master.repository";
-import { AppError } from "../shared/errors/app.error";
+import {
+    WorkOrderMasterGroupResponseDto,
+    WorkOrderMasterPayload,
+    WorkOrderMasterResponseDto,
+} from "../dtos/work-order-master.dto";
+import {
+    IWorkOrderMasterRepository,
+    IWorkOrderMasterService,
+} from "../interfaces/work-order-master.interface";
+import { WorkOrderMaster } from "../models/work-order-master.model";
+import { BaseService } from "../shared/base/base.service";
 
-export class WorkOrderMasterService {
+export class WorkOrderMasterService
+    extends BaseService
+    implements IWorkOrderMasterService {
     constructor(
-        private workOrderMasterRepository: WorkOrderMasterRepository,
-        private specificationGroupRepository: SpecificationGroupRepository
-    ) { }
+        private readonly workOrderMasterRepository: IWorkOrderMasterRepository,
+    ) {
+        super();
+    }
 
-    async getAllWorkOrderMasters(query: PaginationQuery): Promise<PaginatedWorkOrderMasters> {
-        const result = await this.workOrderMasterRepository.findAll(query);
+    async getAllWorkOrderMasters(
+        search?: string,
+    ): Promise<WorkOrderMasterGroupResponseDto[]> {
+        const workOrderRows =
+            await this.workOrderMasterRepository.findAllGroupedBySpecificationGroup(
+                search,
+            );
 
-        const totalPages = Math.ceil(result.total / query.limit);
+        const specificationGroups = new Map<
+            number,
+            WorkOrderMasterGroupResponseDto
+        >();
 
+        for (const workOrderRow of workOrderRows) {
+            if (!specificationGroups.has(workOrderRow.specification_group_id)) {
+                specificationGroups.set(workOrderRow.specification_group_id, {
+                    id: workOrderRow.specification_group_id,
+                    group_no: workOrderRow.group_no,
+                    name: workOrderRow.name,
+                    sort_order: workOrderRow.sort_order,
+                    data: [],
+                });
+            }
+
+            if (workOrderRow.work_order_id !== null) {
+                specificationGroups
+                    .get(workOrderRow.specification_group_id)!
+                    .data.push({
+                        id: workOrderRow.work_order_id,
+                        specification_group_id: workOrderRow.specification_group_id,
+                        job_code: workOrderRow.job_code!,
+                        job_name: workOrderRow.job_name!,
+                        job_category: workOrderRow.job_category,
+                        job_standar: workOrderRow.job_standar,
+                        job_type: workOrderRow.job_type,
+                        job_critical: workOrderRow.job_critical,
+                        job_internal: workOrderRow.job_internal,
+                        estimated_hours: workOrderRow.estimated_hours,
+                        job_desc: workOrderRow.job_desc,
+                    });
+            }
+        }
+
+        return Array.from(specificationGroups.values());
+    }
+
+    async getWorkOrderMasterById(
+        id: number,
+    ): Promise<WorkOrderMasterResponseDto | null> {
+        const workOrderMaster = await this.workOrderMasterRepository.findById(id);
+
+        return workOrderMaster ? this.toDto(workOrderMaster) : null;
+    }
+
+    async createWorkOrderMaster(data: WorkOrderMasterPayload): Promise<number> {
+        return this.workOrderMasterRepository.create(data);
+    }
+
+    async updateWorkOrderMaster(
+        id: number,
+        data: WorkOrderMasterPayload,
+    ): Promise<boolean> {
+        return this.workOrderMasterRepository.update(id, data);
+    }
+
+    async deleteWorkOrderMaster(id: number): Promise<boolean> {
+        return this.workOrderMasterRepository.delete(id);
+    }
+
+    private toDto(workOrderMaster: WorkOrderMaster): WorkOrderMasterResponseDto {
         return {
-            data: result.data,
-            pagination: {
-                page: query.page,
-                limit: query.limit,
-                total: result.total,
-                totalPages,
-            },
+            id: workOrderMaster.id,
+            specification_group_id: workOrderMaster.specificationGroupId,
+            job_code: workOrderMaster.jobCode,
+            job_name: workOrderMaster.jobName,
+            job_category: workOrderMaster.jobCategory,
+            job_standar: workOrderMaster.jobStandar,
+            job_type: workOrderMaster.jobType,
+            job_critical: workOrderMaster.jobCritical,
+            job_internal: workOrderMaster.jobInternal,
+            estimated_hours: workOrderMaster.estimatedHours,
+            job_desc: workOrderMaster.jobDesc,
         };
-    }
-
-    async getAllWorkOrderMasterGroup(search?: string): Promise<WorkOrderMasterGroup[]> {
-        const result = await this.workOrderMasterRepository.findAllGroup(search);
-
-        return result;
-    }
-
-    async getWorkOrderMasterById(id: number): Promise<WorkOrderMaster> {
-        const data = await this.workOrderMasterRepository.findById(id);
-
-        if (!data) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
-        }
-
-        return data;
-    }
-
-    async createWorkOrderMaster(data: WorkOrderMasterPayload): Promise<void> {
-        const specificationGroup = await this.specificationGroupRepository.findById(
-            data.specification_group_id,
-        );
-
-        if (!specificationGroup) {
-            throw new AppError(
-                404,
-                "RELATED_DATA_NOT_FOUND",
-                "Related data not found",
-            );
-        }
-
-        await this.workOrderMasterRepository.create(data);
-    }
-
-    async updateWorkOrderMaster(id: number, data: WorkOrderMasterPayload): Promise<void> {
-        const existingData = await this.workOrderMasterRepository.findById(id);
-
-        if (!existingData) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
-        }
-
-        const specificationGroup = await this.specificationGroupRepository.findById(
-            data.specification_group_id,
-        );
-
-        if (!specificationGroup) {
-            throw new AppError(
-                404,
-                "RELATED_DATA_NOT_FOUND",
-                "Related data not found",
-            );
-        }
-
-        await this.workOrderMasterRepository.update(id, data);
-    }
-
-    async deleteWorkOrderMaster(id: number): Promise<void> {
-        const existingData = await this.workOrderMasterRepository.findById(id);
-
-        if (!existingData) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
-        }
-
-        try {
-            const deleted = await this.workOrderMasterRepository.delete(id);
-
-            if (!deleted) {
-                throw new AppError(500, "DELETE_FAILED", "Failed to delete data");
-            }
-        } catch (error: any) {
-            if (error instanceof AppError) {
-                throw error;
-            }
-
-            if (error?.code === "ER_ROW_IS_REFERENCED_2" || error?.errno === 1451) {
-                throw new AppError(
-                    409,
-                    "DATA_IN_USE",
-                    "Data cannot be deleted because it is still used by other data",
-                );
-            }
-
-            throw new AppError(500, "DELETE_FAILED", "Failed to delete data");
-        }
     }
 }

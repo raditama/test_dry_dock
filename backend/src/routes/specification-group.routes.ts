@@ -1,19 +1,41 @@
-import { Router } from 'express';
-import { SpecificationGroupRepository } from '../repositories/specification-group.repository';
-import { SpecificationGroupService } from '../services/specification-group.service';
-import { SpecificationGroupController } from '../controllers/specification-group.controller';
+import { Router } from "express";
+import { SpecificationGroupController } from "../controllers/specification-group.controller";
+import { IRoute } from "../interfaces/route.interface";
 
-const router = Router();
-const specificationGroupRepository = new SpecificationGroupRepository();
-const specificationGroupService = new SpecificationGroupService(specificationGroupRepository);
-const specificationGroupController = new SpecificationGroupController(specificationGroupService);
+export class SpecificationGroupRoutes implements IRoute {
+    public readonly path = "/api/specification-group";
+    public readonly router: Router = Router();
 
-router.get('/lov', specificationGroupController.getSpecificationGroupLov);
+    constructor(
+        private readonly specificationGroupController: SpecificationGroupController,
+    ) {
+        this.initRoutes();
+    }
 
-router.get('/', specificationGroupController.getAllSpecificationGroups);
-router.get('/:id', specificationGroupController.getSpecificationGroupById);
-router.post('/', specificationGroupController.createSpecificationGroup);
-router.put('/:id', specificationGroupController.updateSpecificationGroup);
-router.delete('/:id', specificationGroupController.deleteSpecificationGroup);
-
-export default router;
+    private initRoutes(): void {
+        this.router.get(
+            "/options",
+            this.specificationGroupController.getSpecificationGroupOptions,
+        );
+        this.router.get(
+            "/",
+            this.specificationGroupController.getAllSpecificationGroups,
+        );
+        this.router.get(
+            "/:id",
+            this.specificationGroupController.getSpecificationGroupById,
+        );
+        this.router.post(
+            "/",
+            this.specificationGroupController.createSpecificationGroup,
+        );
+        this.router.put(
+            "/:id",
+            this.specificationGroupController.updateSpecificationGroup,
+        );
+        this.router.delete(
+            "/:id",
+            this.specificationGroupController.deleteSpecificationGroup,
+        );
+    }
+}

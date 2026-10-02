@@ -1,28 +1,36 @@
-import { Pagination } from "../dtos/pagination.dto";
+import {
+    WorkOrderMasterGroupedRow,
+    WorkOrderMasterGroupResponseDto,
+    WorkOrderMasterPayload,
+    WorkOrderMasterResponseDto,
+} from "../dtos/work-order-master.dto";
+import { WorkOrderMaster } from "../models/work-order-master.model";
+import { IRepository } from "./repository.interface";
 
-export interface WorkOrderMaster {
-    id: number;
-    specification_group_id: number;
-    job_code: string;
-    job_name: string;
-    job_category: string | null;
-    job_standar: string | null;
-    job_type: string | null;
-    job_critical: string | null;
-    job_internal: string | null;
-    estimated_hours: number | null;
-    job_desc: string | null;
+export interface IWorkOrderMasterRepository extends IRepository<
+    WorkOrderMaster,
+    WorkOrderMasterPayload
+> {
+    findAllGroupedBySpecificationGroup(
+        search?: string,
+    ): Promise<WorkOrderMasterGroupedRow[]>;
 }
 
-export interface WorkOrderMasterGroup {
-    id: number;
-    group_no: string;
-    name: string;
-    sort_order: number;
-    data: WorkOrderMaster[];
-}
+export interface IWorkOrderMasterService {
+    getAllWorkOrderMasters(
+        search?: string,
+    ): Promise<WorkOrderMasterGroupResponseDto[]>;
 
-export interface PaginatedWorkOrderMasters {
-    data: WorkOrderMaster[];
-    pagination: Pagination;
+    getWorkOrderMasterById(
+        id: number,
+    ): Promise<WorkOrderMasterResponseDto | null>;
+
+    createWorkOrderMaster(data: WorkOrderMasterPayload): Promise<number>;
+
+    updateWorkOrderMaster(
+        id: number,
+        data: WorkOrderMasterPayload,
+    ): Promise<boolean>;
+
+    deleteWorkOrderMaster(id: number): Promise<boolean>;
 }

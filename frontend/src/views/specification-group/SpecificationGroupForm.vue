@@ -45,14 +45,14 @@ const submit = () => {
                             Group No
                         </label>
                         <InputText v-model="form.group_no" class="w-full"
-                            placeholder="Enter specificationGroup group no" required />
+                            placeholder="" required />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Name
                         </label>
-                        <InputText v-model="form.name" class="w-full" placeholder="Enter specificationGroup name"
+                        <InputText v-model="form.name" class="w-full" placeholder=""
                             required />
                     </div>
 
@@ -61,7 +61,7 @@ const submit = () => {
                             Sort Order
                         </label>
                         <InputNumber v-model="form.sort_order" class="w-full"
-                            placeholder="Enter specificationGroup sort order" :min="0" required />
+                            placeholder="" :min="0" required />
                     </div>
                 </div>
             </div>

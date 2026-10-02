@@ -119,11 +119,13 @@ const confirmDeleteChecklist = async (): Promise<void> => {
     }
 }
 
-const getStatusSeverity = (status: number) => {
+const getStatusSeverity = (
+    status: Checklist['is_active'],
+) => {
     switch (status) {
-        case 1:
+        case true:
             return 'success'
-        case 0:
+        case false:
             return 'warn'
         default:
             return 'secondary'

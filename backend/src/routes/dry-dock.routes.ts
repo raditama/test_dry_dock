@@ -1,17 +1,37 @@
-import { Router } from 'express';
-import { DryDockRepository } from '../repositories/dry-dock.repository';
-import { DryDockService } from '../services/dry-dock.service';
-import { DryDockController } from '../controllers/dry-dock.controller';
+import { Router } from "express";
+import { DryDockController } from "../controllers/dry-dock.controller";
+import { IRoute } from "../interfaces/route.interface";
 
-const router = Router();
-const dryDockRepository = new DryDockRepository();
-const dryDockService = new DryDockService(dryDockRepository);
-const dryDockController = new DryDockController(dryDockService);
+export class DryDockRoutes implements IRoute {
+    public readonly path = "/api/dry-dock";
+    public readonly router: Router = Router();
 
-router.get('/', dryDockController.getAllDryDocks);
-router.get('/:id', dryDockController.getDryDockById);
-router.post('/', dryDockController.createDryDock);
-router.put('/:id', dryDockController.updateDryDock);
-router.delete('/:id', dryDockController.deleteDryDock);
+    constructor(
+        private readonly dryDockController: DryDockController
+    ) {
+        this.initRoutes();
+    }
 
-export default router;
+    private initRoutes(): void {
+        this.router.get(
+            "/", 
+            this.dryDockController.getAllDryDocks,
+        );
+        this.router.get(
+            "/:id", 
+            this.dryDockController.getDryDockById,
+        );
+        this.router.post(
+            "/", 
+            this.dryDockController.createDryDock,
+        );
+        this.router.put(
+            "/:id", 
+            this.dryDockController.updateDryDock,
+        );
+        this.router.delete(
+            "/:id", 
+            this.dryDockController.deleteDryDock,
+        );
+    }
+}

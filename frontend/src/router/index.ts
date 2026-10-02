@@ -4,6 +4,11 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
+            path: '/',
+            name: 'dashboard',
+            component: () => import('@/views/dashboard/Dashboard.vue'),
+        },
+        {
             path: '/dry-dock',
             name: 'dry-dock',
             component: () => import('@/views/dry-dock/DryDocks.vue'),

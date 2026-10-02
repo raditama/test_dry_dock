@@ -1,119 +1,78 @@
-import { Request, Response } from "express";
-import { ChecklistItemService } from "../services/checklist-item.service";
-import { ChecklistItemPayload } from "../dtos/checklist-item.dto";
-import { sendError, sendSuccess } from "../shared/utils/response";
-import { PaginationQuery } from "../dtos/pagination.dto";
+import { IChecklistItemService } from "../interfaces/checklist-item.interface";
+import { BaseController } from "../shared/base/base.controller";
+import { sendSuccess } from "../shared/utils/response";
 
-export class ChecklistItemController {
-    constructor(private checklistItemService: ChecklistItemService) { }
+export class ChecklistItemController extends BaseController {
+    constructor(private readonly checklistItemService: IChecklistItemService) {
+        super();
+    }
 
-    getAllChecklistItems = async (req: Request, res: Response): Promise<void> => {
-        const page = Number(req.query.page) || 1;
-        const limit = Number(req.query.limit) || 10;
-        const search = req.query.search
-            ? String(req.query.search).trim()
-            : undefined;
-        const checklist_id = Number(req.query.checklist_id) || undefined;
+    getAllChecklistItems = this.handle(async (req, res) => {
+        const query = this.parsePagination(req);
 
-        if (page < 1) {
-            sendError(res, 500, "INVALID_PARAMETER", "Page must be greater than 0");
-            return;
-        }
+        const checklistId =
+            typeof req.query.checklist_id === 'string'
+                ? Number(req.query.checklist_id)
+                : undefined;
 
-        if (limit < 1) {
-            sendError(res, 500, "INVALID_PARAMETER", "Limit must be greater than 0");
-            return;
-        }
-
-        const query: PaginationQuery = {
-            page,
-            limit,
-            search,
-        };
-
-        const data = await this.checklistItemService.getAllChecklistItems(query, checklist_id);
+        const checklistItems =
+            await this.checklistItemService.getAllChecklistItems({
+                ...query,
+                checklist_id: checklistId,
+            });
 
         sendSuccess(
             res,
-            "Successfully retrieved data",
-            data.data,
+            "Successfully retrieved checklist items",
+            checklistItems.data,
             undefined,
-            data.pagination,
+            checklistItems.pagination,
         );
-    };
+    });
 
-    getChecklistItemById = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
+    getChecklistItemById = this.handle(async (req, res) => {
+        const id = this.parseId(req);
 
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 404, "INVALID_PARAMETER", "Invalid id");
-            return;
+        const checklistItem =
+            await this.checklistItemService.getChecklistItemById(id);
+
+        if (!checklistItem) {
+            this.throwNotFound("Checklist item not found");
         }
 
-        const data = await this.checklistItemService.getChecklistItemById(id);
+        sendSuccess(res, "Successfully retrieved checklist item", checklistItem);
+    });
 
-        sendSuccess(res, "Successfully retrieved data", data);
-    };
+    createChecklistItem = this.handle(async (req, res) => {
+        const id = await this.checklistItemService.createChecklistItem(req.body);
 
-    createChecklistItem = async (req: Request, res: Response): Promise<void> => {
-        const {
-            checklist_id,
-            title,
-        } = req.body;
+        sendSuccess(res, "Successfully created checklist item", { id }, 201);
+    });
 
-        if (!checklist_id || !title) {
-            sendError(res, 500, "INVALID_PARAMETER", "Required fields are missing");
-            return;
+    updateChecklistItem = this.handle(async (req, res) => {
+        const id = this.parseId(req);
+
+        const updated = await this.checklistItemService.updateChecklistItem(
+            id,
+            req.body,
+        );
+
+        if (!updated) {
+            this.throwNotFound("Checklist item not found");
         }
 
-        const data: ChecklistItemPayload = {
-            checklist_id: checklist_id,
-            title: String(title).trim(),
-        };
+        sendSuccess(res, "Successfully updated checklist item");
+    });
 
-        await this.checklistItemService.createChecklistItem(data);
+    deleteChecklistItem = this.handle(async (req, res) => {
+        const id = this.parseId(req);
 
-        sendSuccess(res, "Successfully created data");
-    };
+        const deleted = await this.checklistItemService.deleteChecklistItem(id);
 
-    updateChecklistItem = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 500, "INVALID_PARAMETER", "Invalid id");
-            return;
+        if (!deleted) {
+            this.throwNotFound("Checklist item not found");
         }
 
-        const {
-            checklist_id,
-            title,
-        } = req.body;
-
-        if (!checklist_id || !title) {
-            sendError(res, 500, "INVALID_PARAMETER", "Required fields are missing");
-            return;
-        }
-
-        const data: ChecklistItemPayload = {
-            checklist_id: checklist_id,
-            title: String(title).trim(),
-        };
-
-        await this.checklistItemService.updateChecklistItem(id, data);
-
-        sendSuccess(res, "Successfully updated data");
-    };
-
-    deleteChecklistItem = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 500, "INVALID_PARAMETER", "Invalid id");
-            return;
-        }
-
-        await this.checklistItemService.deleteChecklistItem(id);
-
-        sendSuccess(res, "Successfully deleted data");
-    };
+        sendSuccess(res, "Successfully deleted checklist item");
+    });
 }

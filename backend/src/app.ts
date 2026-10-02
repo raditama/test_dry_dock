@@ -1,38 +1,47 @@
-import express from "express";
-
-import dryDockRoutes from './routes/dry-dock.routes';
-import checklistRoutes from './routes/checklist.routes';
-import checklistItemRoutes from './routes/checklist-item.routes';
-import specificationGroupRoutes from './routes/specification-group.routes';
-import workOrderMasterRoutes from './routes/work-order-master.routes';
 import cors from 'cors';
-import { errorHandler } from "./shared/middlewares/error.middleware";
-import dotenv from 'dotenv'
+import express, { Application } from 'express';
+import { Server as HttpServer } from 'http';
+import { IRoute } from './interfaces/route.interface';
+import { errorHandler } from './shared/middlewares/error.middleware';
+import { AppConfig } from './config/app.config';
 
-const app = express();
+export class App {
+    public readonly instance: Application = express();
 
-dotenv.config()
+    constructor(
+        private readonly config: AppConfig,
+        private readonly routes: IRoute[],
+    ) {
+        this.initMiddlewares();
+        this.initHealthCheck();
+        this.initRoutes();
+        this.initErrorHandling();
+    }
 
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN,
-  }),
-)
+    private initMiddlewares(): void {
+        this.instance.use(cors({ origin: this.config.corsOrigin }));
+        this.instance.use(express.json());
+    }
 
-app.use(express.json());
+    private initHealthCheck(): void {
+        this.instance.get('/', (_req, res) => {
+            res.json({ message: 'API is running.' });
+        });
+    }
 
-app.get("/", (_req, res) => {
-  res.json({
-    message: "API is running.",
-  });
-});
+    private initRoutes(): void {
+        this.routes.forEach((route) => {
+            this.instance.use(route.path, route.router);
+        });
+    }
 
-app.use('/api/dry-dock', dryDockRoutes);
-app.use('/api/checklist', checklistRoutes);
-app.use('/api/checklist-item', checklistItemRoutes);
-app.use('/api/specification-group', specificationGroupRoutes);
-app.use('/api/work-order-master', workOrderMasterRoutes);
+    private initErrorHandling(): void {
+        this.instance.use(errorHandler);
+    }
 
-app.use(errorHandler);
-
-export default app;
+    listen(): HttpServer {
+        return this.instance.listen(this.config.port, () => {
+            console.log(`Server running on http://localhost:${this.config.port}`);
+        });
+    }
+}

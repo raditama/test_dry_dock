@@ -44,7 +44,7 @@ export const deleteSpecificationGroup = async (id: number) => {
 }
 
 export const getSpecificationGroupLov = async (): Promise<SpecificationGroupLovResponse> => {
-    const response = await api.get<SpecificationGroupLovResponse>('/specification-group/lov')
+    const response = await api.get<SpecificationGroupLovResponse>('/specification-group/options')
 
     return response.data
 }

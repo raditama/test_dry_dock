@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import { getSpecificationGroup, updateSpecificationGroup } from '@/api/specification-group.ts'
-import type { SpecificationGroup } from '@/types/specification-group.ts'
+import type { SpecificationGroup, SpecificationGroupFormData } from '@/types/specification-group.ts'
 import SpecificationGroupForm from './SpecificationGroupForm.vue'
 
 interface Props {
@@ -39,7 +39,7 @@ const fetchSpecificationGroup = async (): Promise<void> => {
     }
 }
 
-const handleSubmit = async (data: any): Promise<void> => {
+const handleSubmit = async (data: SpecificationGroupFormData): Promise<void> => {
     if (!props.id) return
 
     try {

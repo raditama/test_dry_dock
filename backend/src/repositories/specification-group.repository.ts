@@ -1,154 +1,62 @@
-import { ResultSetHeader, RowDataPacket } from 'mysql2';
-import { SpecificationGroup } from '../interfaces/specification-group.interface';
-import dbPool from '../config/database';
-import { PaginationQuery } from '../dtos/pagination.dto';
-import { SpecificationGroupPayload } from '../dtos/specification-group.dto';
-import { Lov } from '../interfaces/lov.interface';
+import { RowDataPacket } from "mysql2/promise";
+import { ISpecificationGroupRepository, SpecificationGroupOptionDto } from "../interfaces/specification-group.interface";
+import { SpecificationGroupPayload } from "../dtos/specification-group.dto";
+import { BaseRepository } from "../shared/base/base.repository";
+import { SpecificationGroup } from "../models/specification-group.model";
 
-interface SpecificationGroupRow extends RowDataPacket, SpecificationGroup { }
-interface SpecificationGroupLovRow extends RowDataPacket, Lov {}
+interface SpecificationGroupRow extends RowDataPacket {
+    id: number;
+    group_no: string;
+    name: string;
+    sort_order: number;
+}
 
-export class SpecificationGroupRepository {
-    async findAll(
-        query: PaginationQuery
-    ): Promise<{ data: SpecificationGroup[]; total: number }> {
-        const { page, limit, search } = query;
+interface SpecificationGroupOptionRow extends RowDataPacket {
+    id: number;
+    name: string;
+}
 
-        const offset = (page - 1) * limit;
-        const conditions: string[] = [];
-        const params: any[] = [];
+export class SpecificationGroupRepository
+    extends BaseRepository<
+        SpecificationGroup,
+        SpecificationGroupRow,
+        SpecificationGroupPayload
+    >
+    implements ISpecificationGroupRepository {
+    protected readonly tableName = "specification_group";
 
-        if (search) {
-            conditions.push(`
-                    name LIKE ?
-            `);
+    protected readonly columns = [
+        "id",
+        "group_no",
+        "name",
+        "sort_order",
+    ] as const;
 
-            const searchValue = `%${search}%`;
+    protected readonly searchableColumns = [
+        "group_no",
+        "name",
+    ] as const;
 
-            params.push(searchValue);
-        }
+    protected readonly orderBy = "sort_order ASC";
 
-        const whereClause =
-            conditions.length > 0
-                ? `WHERE ${conditions.join(' AND ')}`
-                : '';
-
-        const [rows] = await dbPool.query<SpecificationGroupRow[]>(
-            `
-            SELECT
-                id,
-                group_no,
-                name,
-                sort_order
-            FROM specification_group
-            ${whereClause}
-            ORDER BY id DESC
-            LIMIT ? OFFSET ?
-            `,
-            [...params, limit, offset]
+    protected toEntity(row: SpecificationGroupRow): SpecificationGroup {
+        return new SpecificationGroup(
+            row.id,
+            row.group_no,
+            row.name,
+            row.sort_order,
         );
-
-        const [countRows] = await dbPool.query<RowDataPacket[]>(
-            `
-            SELECT COUNT(*) AS total
-            FROM specification_group
-            ${whereClause}
-            `,
-            params
-        );
-
-        const total = Number(countRows[0].total);
-
-        return {
-            data: rows,
-            total,
-        };
     }
 
-    async findById(id: number): Promise<SpecificationGroup | null> {
-        const [rows] = await dbPool.query<SpecificationGroupRow[]>(
-            `
-            SELECT
-                id,
-                group_no,
-                name,
-                sort_order
-            FROM specification_group
-            WHERE id = ?
-            LIMIT 1
-            `,
-            [id]
-        );
-
-        return rows.length > 0 ? rows[0] : null;
-    }
-
-    async create(data: SpecificationGroupPayload): Promise<number> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            INSERT INTO specification_group (
-                group_no,
-                name,
-                sort_order
-            )
-            VALUES (?, ?, ?)
-            `,
-            [
-                data.group_no,
-                data.name,
-                data.sort_order,
-            ]
-        );
-
-        return result.insertId;
-    }
-
-    async update(
-        id: number,
-        data: SpecificationGroupPayload
-    ): Promise<boolean> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            UPDATE specification_group
-            SET
-                group_no = ?,
-                name = ?,
-                sort_order = ?
-            WHERE id = ?
-            `,
-            [
-                data.group_no,
-                data.name,
-                data.sort_order,
-                id,
-            ]
-        );
-
-        return result.affectedRows > 0;
-    }
-
-    async delete(id: number): Promise<boolean> {
-        const [result] = await dbPool.query<ResultSetHeader>(
-            `
-            DELETE FROM specification_group
-            WHERE id = ?
-            `,
-            [id]
-        );
-
-        return result.affectedRows > 0;
-    }
-
-    async findLov(): Promise<Lov[]> {
-        const [rows] = await dbPool.query<SpecificationGroupLovRow[]>(
-            `
-            SELECT
-                id,
-                name
+    async getOptions(): Promise<SpecificationGroupOptionDto[]> {
+        const query = `
+            SELECT id, name
             FROM specification_group
             ORDER BY sort_order ASC
-            `
-        );
+        `;
+
+        const [rows] =
+            await this.db.execute<SpecificationGroupOptionRow[]>(query);
 
         return rows;
     }

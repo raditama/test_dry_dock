@@ -1,28 +1,25 @@
-import { Pagination } from "../dtos/pagination.dto";
+import { PaginationQuery } from "../dtos/pagination.dto";
+import {
+    DryDockPayload,
+    DryDockResponseDto,
+    PaginatedDryDocks,
+} from "../dtos/dry-dock.dto";
+import { DryDock } from "../models/dry-dock.model";
+import { IRepository } from "./repository.interface";
 
-export type DryDockStatus = "PLANNING" | "EXECUTION" | "COMPLETED";
+export interface IDryDockRepository extends IRepository<
+    DryDock,
+    DryDockPayload
+> { }
 
-export type DryDockPriority = "LOW" | "MEDIUM" | "HIGH";
+export interface IDryDockService {
+    getAllDryDocks(query: PaginationQuery): Promise<PaginatedDryDocks>;
 
-export interface DryDock {
-    id: number;
-    vessel: string;
-    dock_list_no: string;
-    description: string | null;
-    shipyard_name: string | null;
-    shipyard_detail: string | null;
-    planned_start_date: Date | null;
-    planned_end_date: Date | null;
-    actual_start_date: Date | null;
-    actual_end_date: Date | null;
-    account_code: string | null;
-    budget: number | null;
-    responsible_bank: string | null;
-    status: DryDockStatus;
-    priority: DryDockPriority;
-}
+    getDryDockById(id: number): Promise<DryDockResponseDto | null>;
 
-export interface PaginatedDryDocks {
-    data: DryDock[];
-    pagination: Pagination;
+    createDryDock(data: DryDockPayload): Promise<number>;
+
+    updateDryDock(id: number, data: DryDockPayload): Promise<boolean>;
+
+    deleteDryDock(id: number): Promise<boolean>;
 }

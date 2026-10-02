@@ -1,168 +1,96 @@
-import { Request, Response } from "express";
-import { WorkOrderMasterService } from "../services/work-order-master.service";
-import { WorkOrderMasterPayload } from "../dtos/work-order-master.dto";
-import { sendError, sendSuccess } from "../shared/utils/response";
-import { PaginationQuery } from "../dtos/pagination.dto";
+import { IWorkOrderMasterService } from '../interfaces/work-order-master.interface';
+import { BaseController } from '../shared/base/base.controller';
+import { sendSuccess } from '../shared/utils/response';
 
-export class WorkOrderMasterController {
-    constructor(private workOrderMasterService: WorkOrderMasterService) { }
+export class WorkOrderMasterController extends BaseController {
+    constructor(
+        private readonly workOrderMasterService: IWorkOrderMasterService,
+    ) {
+        super();
+    }
 
-    getAllWorkOrderMasters = async (req: Request, res: Response): Promise<void> => {
-        const page = Number(req.query.page) || 1;
-        const limit = Number(req.query.limit) || 10;
-        const search = req.query.search
-            ? String(req.query.search).trim()
-            : undefined;
+    getAllWorkOrderMasters = this.handle(async (req, res) => {
+        const search =
+            typeof req.query.search === 'string'
+                ? req.query.search
+                : undefined;
 
-        if (page < 1) {
-            sendError(res, 500, "INVALID_PARAMETER", "Page must be greater than 0");
-            return;
-        }
-
-        if (limit < 1) {
-            sendError(res, 500, "INVALID_PARAMETER", "Limit must be greater than 0");
-            return;
-        }
-
-        const query: PaginationQuery = {
-            page,
-            limit,
-            search,
-        };
-
-        const data = await this.workOrderMasterService.getAllWorkOrderMasters(query);
+        const workOrderGroups =
+            await this.workOrderMasterService
+                .getAllWorkOrderMasters(search);
 
         sendSuccess(
             res,
-            "Successfully retrieved data",
-            data.data,
-            undefined,
-            data.pagination,
+            'Successfully retrieved data',
+            workOrderGroups,
         );
-    };
+    });
 
-    getAllWorkOrderMasterGroup = async (req: Request, res: Response): Promise<void> => {
-        const search = req.query.search
-            ? String(req.query.search).trim()
-            : undefined;
+    getWorkOrderMasterById = this.handle(async (req, res) => {
+        const id = this.parseId(req);
 
-        const data = await this.workOrderMasterService.getAllWorkOrderMasterGroup(search);
+        const workOrderMaster =
+            await this.workOrderMasterService
+                .getWorkOrderMasterById(id);
+
+        if (!workOrderMaster) {
+            this.throwNotFound('Work order master not found');
+        }
 
         sendSuccess(
             res,
-            "Successfully retrieved data",
-            data
+            'Successfully retrieved work order master',
+            workOrderMaster,
         );
-    };
+    });
 
-    getWorkOrderMasterById = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
+    createWorkOrderMaster = this.handle(async (req, res) => {
+        const id =
+            await this.workOrderMasterService
+                .createWorkOrderMaster(req.body);
 
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 404, "INVALID_PARAMETER", "Invalid id");
-            return;
+        sendSuccess(
+            res,
+            'Successfully created work order master',
+            { id },
+            201,
+        );
+    });
+
+    updateWorkOrderMaster = this.handle(async (req, res) => {
+        const id = this.parseId(req);
+
+        const updated =
+            await this.workOrderMasterService
+                .updateWorkOrderMaster(
+                    id,
+                    req.body,
+                );
+
+        if (!updated) {
+            this.throwNotFound('Work order master not found');
         }
 
-        const data = await this.workOrderMasterService.getWorkOrderMasterById(id);
+        sendSuccess(
+            res,
+            'Successfully updated work order master',
+        );
+    });
 
-        sendSuccess(res, "Successfully retrieved data", data);
-    };
+    deleteWorkOrderMaster = this.handle(async (req, res) => {
+        const id = this.parseId(req);
 
-    createWorkOrderMaster = async (req: Request, res: Response): Promise<void> => {
-        const {
-            specification_group_id,
-            job_code,
-            job_name,
-            job_category,
-            job_standar,
-            job_type,
-            job_critical,
-            job_internal,
-            estimated_hours,
-            job_desc,
-        } = req.body;
+        const deleted =
+            await this.workOrderMasterService
+                .deleteWorkOrderMaster(id);
 
-        if (!specification_group_id || !job_code || !job_name) {
-            sendError(res, 500, "INVALID_PARAMETER", "Required fields are missing");
-            return;
+        if (!deleted) {
+            this.throwNotFound('Work order master not found');
         }
 
-        const data: WorkOrderMasterPayload = {
-            specification_group_id: Number(specification_group_id),
-            job_code: String(job_code).trim(),
-            job_name: String(job_name).trim(),
-            job_category: job_category ? String(job_category).trim() : undefined,
-            job_standar: job_standar ? String(job_standar).trim() : undefined,
-            job_type: job_type ? String(job_type).trim() : undefined,
-            job_critical: job_critical ? String(job_critical).trim() : undefined,
-            job_internal: job_internal ? String(job_internal).trim() : undefined,
-            estimated_hours: estimated_hours !== undefined
-                ? Number(estimated_hours)
-                : undefined,
-            job_desc: job_desc ? String(job_desc).trim() : undefined,
-        };
-
-        await this.workOrderMasterService.createWorkOrderMaster(data);
-
-        sendSuccess(res, "Successfully created data");
-    };
-
-    updateWorkOrderMaster = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 500, "INVALID_PARAMETER", "Invalid id");
-            return;
-        }
-
-        const {
-            specification_group_id,
-            job_code,
-            job_name,
-            job_category,
-            job_standar,
-            job_type,
-            job_critical,
-            job_internal,
-            estimated_hours,
-            job_desc,
-        } = req.body;
-
-        if (!specification_group_id || !job_code || !job_name) {
-            sendError(res, 500, "INVALID_PARAMETER", "Required fields are missing");
-            return;
-        }
-
-        const data: WorkOrderMasterPayload = {
-            specification_group_id: Number(specification_group_id),
-            job_code: String(job_code).trim(),
-            job_name: String(job_name).trim(),
-            job_category: job_category ? String(job_category).trim() : undefined,
-            job_standar: job_standar ? String(job_standar).trim() : undefined,
-            job_type: job_type ? String(job_type).trim() : undefined,
-            job_critical: job_critical ? String(job_critical).trim() : undefined,
-            job_internal: job_internal ? String(job_internal).trim() : undefined,
-            estimated_hours: estimated_hours !== undefined
-                ? Number(estimated_hours)
-                : undefined,
-            job_desc: job_desc ? String(job_desc).trim() : undefined,
-        };
-
-        await this.workOrderMasterService.updateWorkOrderMaster(id, data);
-
-        sendSuccess(res, "Successfully updated data");
-    };
-
-    deleteWorkOrderMaster = async (req: Request, res: Response): Promise<void> => {
-        const id = Number(req.params.id);
-
-        if (!Number.isInteger(id) || id <= 0) {
-            sendError(res, 500, "INVALID_PARAMETER", "Invalid id");
-            return;
-        }
-
-        await this.workOrderMasterService.deleteWorkOrderMaster(id);
-
-        sendSuccess(res, "Successfully deleted data");
-    };
+        sendSuccess(
+            res,
+            'Successfully deleted work order master',
+        );
+    });
 }

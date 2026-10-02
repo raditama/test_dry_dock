@@ -1,79 +1,73 @@
 import { PaginationQuery } from "../dtos/pagination.dto";
-import { DryDockPayload } from "../dtos/dry-dock.dto";
-import { DryDock, PaginatedDryDocks } from "../interfaces/dry-dock.interface";
-import { DryDockRepository } from "../repositories/dry-dock.repository";
-import { AppError } from "../shared/errors/app.error";
+import {
+    DryDockPayload,
+    DryDockResponseDto,
+    PaginatedDryDocks,
+} from "../dtos/dry-dock.dto";
+import {
+    IDryDockRepository,
+    IDryDockService,
+} from "../interfaces/dry-dock.interface";
+import { DryDock } from "../models/dry-dock.model";
+import { BaseService } from "../shared/base/base.service";
 
-export class DryDockService {
-    constructor(private dryDockRepository: DryDockRepository) { }
+export class DryDockService extends BaseService implements IDryDockService {
+    constructor(private readonly dryDockRepository: IDryDockRepository) {
+        super();
+    }
 
     async getAllDryDocks(query: PaginationQuery): Promise<PaginatedDryDocks> {
-        const result = await this.dryDockRepository.findAll(query);
-
-        const totalPages = Math.ceil(result.total / query.limit);
+        const { data, total } = await this.dryDockRepository.findAll(query);
 
         return {
-            data: result.data,
-            pagination: {
-                page: query.page,
-                limit: query.limit,
-                total: result.total,
-                totalPages,
-            },
+            data: data.map((dryDock) => this.toDto(dryDock)),
+            pagination: this.buildPagination(total, query),
         };
     }
 
-    async getDryDockById(id: number): Promise<DryDock> {
-        const data = await this.dryDockRepository.findById(id);
+    async getDryDockById(id: number): Promise<DryDockResponseDto | null> {
+        const dryDock = await this.dryDockRepository.findById(id);
 
-        if (!data) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
-        }
-
-        return data;
+        return dryDock ? this.toDto(dryDock) : null;
     }
 
-    async createDryDock(data: DryDockPayload): Promise<void> {
-        await this.dryDockRepository.create(data);
+    async createDryDock(data: DryDockPayload): Promise<number> {
+        return this.dryDockRepository.create(data);
     }
 
-    async updateDryDock(id: number, data: DryDockPayload): Promise<void> {
-        const existingData = await this.dryDockRepository.findById(id);
-
-        if (!existingData) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
-        }
-
-        await this.dryDockRepository.update(id, data);
+    async updateDryDock(id: number, data: DryDockPayload): Promise<boolean> {
+        return this.dryDockRepository.update(id, data);
     }
 
-    async deleteDryDock(id: number): Promise<void> {
-        const existingData = await this.dryDockRepository.findById(id);
+    async deleteDryDock(id: number): Promise<boolean> {
+        return this.dryDockRepository.delete(id);
+    }
 
-        if (!existingData) {
-            throw new AppError(404, "DATA_NOT_FOUND", "Data not found");
+    private formatDate(date: Date | null): string | null {
+        if (!date) {
+            return null;
         }
 
-        try {
-            const deleted = await this.dryDockRepository.delete(id);
+        return date.toISOString().split("T")[0];
+    }
 
-            if (!deleted) {
-                throw new AppError(500, "DELETE_FAILED", "Failed to delete data");
-            }
-        } catch (error: any) {
-            if (error instanceof AppError) {
-                throw error;
-            }
-
-            if (error?.code === "ER_ROW_IS_REFERENCED_2" || error?.errno === 1451) {
-                throw new AppError(
-                    409,
-                    "DATA_IN_USE",
-                    "Data cannot be deleted because it is still used by other data",
-                );
-            }
-
-            throw new AppError(500, "DELETE_FAILED", "Failed to delete data");
-        }
+    private toDto(dryDock: DryDock): DryDockResponseDto {
+        return {
+            id: dryDock.id,
+            vessel: dryDock.vessel,
+            dock_list_no: dryDock.dockListNo,
+            description: dryDock.description,
+            shipyard_name: dryDock.shipyardName,
+            shipyard_detail: dryDock.shipyardDetail,
+            planned_start_date: this.formatDate(dryDock.plannedStartDate),
+            planned_end_date: this.formatDate(dryDock.plannedEndDate),
+            actual_start_date: this.formatDate(dryDock.actualStartDate),
+            actual_end_date: this.formatDate(dryDock.actualEndDate),
+            account_code: dryDock.accountCode,
+            budget: dryDock.budget,
+            responsible_bank: dryDock.responsibleBank,
+            status: dryDock.status,
+            priority: dryDock.priority,
+        };
     }
 }

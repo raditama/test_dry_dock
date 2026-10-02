@@ -5,7 +5,7 @@ import {
     getDryDock,
     updateDryDock,
 } from '@/api/dry-dock.ts'
-import type { DryDock } from '@/types/dry-dock.ts'
+import type { DryDock, DryDockFormData } from '@/types/dry-dock.ts'
 import DryDockForm from './DryDockForm.vue'
 
 interface Props {
@@ -42,7 +42,7 @@ const fetchDryDock = async (): Promise<void> => {
     }
 }
 
-const handleSubmit = async (data: any): Promise<void> => {
+const handleSubmit = async (data: DryDockFormData): Promise<void> => {
     if (!props.id) return
 
     try {

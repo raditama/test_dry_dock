@@ -1,19 +1,37 @@
-import { Router } from 'express';
-import { ChecklistItemRepository } from '../repositories/checklist-item.repository';
-import { ChecklistItemService } from '../services/checklist-item.service';
-import { ChecklistItemController } from '../controllers/checklist-item.controller';
-import { ChecklistRepository } from '../repositories/checklist.repository';
+import { Router } from "express";
+import { ChecklistItemController } from "../controllers/checklist-item.controller";
+import { IRoute } from "../interfaces/route.interface";
 
-const router = Router();
-const checklistItemRepository = new ChecklistItemRepository();
-const checklistRepository = new ChecklistRepository();
-const checklistItemService = new ChecklistItemService(checklistItemRepository, checklistRepository);
-const checklistItemController = new ChecklistItemController(checklistItemService);
+export class ChecklistItemRoutes implements IRoute {
+    public readonly path = "/api/checklist-item";
+    public readonly router: Router = Router();
 
-router.get('/', checklistItemController.getAllChecklistItems);
-router.get('/:id', checklistItemController.getChecklistItemById);
-router.post('/', checklistItemController.createChecklistItem);
-router.put('/:id', checklistItemController.updateChecklistItem);
-router.delete('/:id', checklistItemController.deleteChecklistItem);
+    constructor(
+        private readonly checklistItemController: ChecklistItemController,
+    ) {
+        this.initRoutes();
+    }
 
-export default router;
+    private initRoutes(): void {
+        this.router.get(
+            "/",
+            this.checklistItemController.getAllChecklistItems,
+        );
+        this.router.get(
+            "/:id",
+            this.checklistItemController.getChecklistItemById,
+        );
+        this.router.post(
+            "/",
+            this.checklistItemController.createChecklistItem,
+        );
+        this.router.put(
+            "/:id",
+            this.checklistItemController.updateChecklistItem,
+        );
+        this.router.delete(
+            "/:id",
+            this.checklistItemController.deleteChecklistItem,
+        );
+    }
+}
