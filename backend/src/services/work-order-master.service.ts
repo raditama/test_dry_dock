@@ -1,9 +1,11 @@
-import { WorkOrderMasterPayload } from "../dtos/work-order-master.dto";
+import {
+    WorkOrderMasterGroupResponseDto,
+    WorkOrderMasterPayload,
+    WorkOrderMasterResponseDto,
+} from "../dtos/work-order-master.dto";
 import {
     IWorkOrderMasterRepository,
     IWorkOrderMasterService,
-    WorkOrderMasterGroupResponseDto,
-    WorkOrderMasterResponseDto,
 } from "../interfaces/work-order-master.interface";
 import { WorkOrderMaster } from "../models/work-order-master.model";
 import { BaseService } from "../shared/base/base.service";
@@ -11,7 +13,6 @@ import { BaseService } from "../shared/base/base.service";
 export class WorkOrderMasterService
     extends BaseService
     implements IWorkOrderMasterService {
-
     constructor(
         private readonly workOrderMasterRepository: IWorkOrderMasterRepository,
     ) {
@@ -22,8 +23,9 @@ export class WorkOrderMasterService
         search?: string,
     ): Promise<WorkOrderMasterGroupResponseDto[]> {
         const workOrderRows =
-            await this.workOrderMasterRepository
-                .findAllGroupedBySpecificationGroup(search);
+            await this.workOrderMasterRepository.findAllGroupedBySpecificationGroup(
+                search,
+            );
 
         const specificationGroups = new Map<
             number,
@@ -32,16 +34,13 @@ export class WorkOrderMasterService
 
         for (const workOrderRow of workOrderRows) {
             if (!specificationGroups.has(workOrderRow.specification_group_id)) {
-                specificationGroups.set(
-                    workOrderRow.specification_group_id,
-                    {
-                        id: workOrderRow.specification_group_id,
-                        group_no: workOrderRow.group_no,
-                        name: workOrderRow.name,
-                        sort_order: workOrderRow.sort_order,
-                        data: [],
-                    },
-                );
+                specificationGroups.set(workOrderRow.specification_group_id, {
+                    id: workOrderRow.specification_group_id,
+                    group_no: workOrderRow.group_no,
+                    name: workOrderRow.name,
+                    sort_order: workOrderRow.sort_order,
+                    data: [],
+                });
             }
 
             if (workOrderRow.work_order_id !== null) {
@@ -49,8 +48,7 @@ export class WorkOrderMasterService
                     .get(workOrderRow.specification_group_id)!
                     .data.push({
                         id: workOrderRow.work_order_id,
-                        specification_group_id:
-                            workOrderRow.specification_group_id,
+                        specification_group_id: workOrderRow.specification_group_id,
                         job_code: workOrderRow.job_code!,
                         job_name: workOrderRow.job_name!,
                         job_category: workOrderRow.job_category,
@@ -70,17 +68,12 @@ export class WorkOrderMasterService
     async getWorkOrderMasterById(
         id: number,
     ): Promise<WorkOrderMasterResponseDto | null> {
-        const workOrderMaster =
-            await this.workOrderMasterRepository.findById(id);
+        const workOrderMaster = await this.workOrderMasterRepository.findById(id);
 
-        return workOrderMaster
-            ? this.toDto(workOrderMaster)
-            : null;
+        return workOrderMaster ? this.toDto(workOrderMaster) : null;
     }
 
-    async createWorkOrderMaster(
-        data: WorkOrderMasterPayload,
-    ): Promise<number> {
+    async createWorkOrderMaster(data: WorkOrderMasterPayload): Promise<number> {
         return this.workOrderMasterRepository.create(data);
     }
 
@@ -91,15 +84,11 @@ export class WorkOrderMasterService
         return this.workOrderMasterRepository.update(id, data);
     }
 
-    async deleteWorkOrderMaster(
-        id: number,
-    ): Promise<boolean> {
+    async deleteWorkOrderMaster(id: number): Promise<boolean> {
         return this.workOrderMasterRepository.delete(id);
     }
 
-    private toDto(
-        workOrderMaster: WorkOrderMaster,
-    ): WorkOrderMasterResponseDto {
+    private toDto(workOrderMaster: WorkOrderMaster): WorkOrderMasterResponseDto {
         return {
             id: workOrderMaster.id,
             specification_group_id: workOrderMaster.specificationGroupId,

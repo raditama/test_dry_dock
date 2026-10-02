@@ -1,31 +1,23 @@
 import { PaginationQuery } from "../dtos/pagination.dto";
-import { DryDockPayload } from "../dtos/dry-dock.dto";
 import {
+    DryDockPayload,
     DryDockResponseDto,
+    PaginatedDryDocks,
+} from "../dtos/dry-dock.dto";
+import {
     IDryDockRepository,
     IDryDockService,
-    PaginatedDryDocks,
 } from "../interfaces/dry-dock.interface";
-import {
-    DryDock,
-} from "../models/dry-dock.model";
+import { DryDock } from "../models/dry-dock.model";
 import { BaseService } from "../shared/base/base.service";
 
-export class DryDockService
-    extends BaseService
-    implements IDryDockService {
-
-    constructor(
-        private readonly dryDockRepository: IDryDockRepository,
-    ) {
+export class DryDockService extends BaseService implements IDryDockService {
+    constructor(private readonly dryDockRepository: IDryDockRepository) {
         super();
     }
 
-    async getAllDryDocks(
-        query: PaginationQuery,
-    ): Promise<PaginatedDryDocks> {
-        const { data, total } =
-            await this.dryDockRepository.findAll(query);
+    async getAllDryDocks(query: PaginationQuery): Promise<PaginatedDryDocks> {
+        const { data, total } = await this.dryDockRepository.findAll(query);
 
         return {
             data: data.map((dryDock) => this.toDto(dryDock)),
@@ -33,33 +25,21 @@ export class DryDockService
         };
     }
 
-    async getDryDockById(
-        id: number,
-    ): Promise<DryDockResponseDto | null> {
-        const dryDock =
-            await this.dryDockRepository.findById(id);
+    async getDryDockById(id: number): Promise<DryDockResponseDto | null> {
+        const dryDock = await this.dryDockRepository.findById(id);
 
-        return dryDock
-            ? this.toDto(dryDock)
-            : null;
+        return dryDock ? this.toDto(dryDock) : null;
     }
 
-    async createDryDock(
-        data: DryDockPayload,
-    ): Promise<number> {
+    async createDryDock(data: DryDockPayload): Promise<number> {
         return this.dryDockRepository.create(data);
     }
 
-    async updateDryDock(
-        id: number,
-        data: DryDockPayload,
-    ): Promise<boolean> {
+    async updateDryDock(id: number, data: DryDockPayload): Promise<boolean> {
         return this.dryDockRepository.update(id, data);
     }
 
-    async deleteDryDock(
-        id: number,
-    ): Promise<boolean> {
+    async deleteDryDock(id: number): Promise<boolean> {
         return this.dryDockRepository.delete(id);
     }
 
@@ -68,12 +48,10 @@ export class DryDockService
             return null;
         }
 
-        return date.toISOString().split('T')[0];
+        return date.toISOString().split("T")[0];
     }
 
-    private toDto(
-        dryDock: DryDock,
-    ): DryDockResponseDto {
+    private toDto(dryDock: DryDock): DryDockResponseDto {
         return {
             id: dryDock.id,
             vessel: dryDock.vessel,

@@ -1,11 +1,13 @@
 import { PaginationQuery } from "../dtos/pagination.dto";
-import { SpecificationGroupPayload } from "../dtos/specification-group.dto";
+import {
+    PaginatedSpecificationGroups,
+    SpecificationGroupOptionDto,
+    SpecificationGroupPayload,
+    SpecificationGroupResponseDto,
+} from "../dtos/specification-group.dto";
 import {
     ISpecificationGroupRepository,
     ISpecificationGroupService,
-    PaginatedSpecificationGroups,
-    SpecificationGroupOptionDto,
-    SpecificationGroupResponseDto,
 } from "../interfaces/specification-group.interface";
 import { SpecificationGroup } from "../models/specification-group.model";
 import { BaseService } from "../shared/base/base.service";
@@ -13,7 +15,6 @@ import { BaseService } from "../shared/base/base.service";
 export class SpecificationGroupService
     extends BaseService
     implements ISpecificationGroupService {
-
     constructor(
         private readonly specificationGroupRepository: ISpecificationGroupRepository,
     ) {
@@ -27,9 +28,7 @@ export class SpecificationGroupService
             await this.specificationGroupRepository.findAll(query);
 
         return {
-            data: data.map((specificationGroup) =>
-                this.toDto(specificationGroup),
-            ),
+            data: data.map((specificationGroup) => this.toDto(specificationGroup)),
             pagination: this.buildPagination(total, query),
         };
     }
@@ -40,9 +39,7 @@ export class SpecificationGroupService
         const specificationGroup =
             await this.specificationGroupRepository.findById(id);
 
-        return specificationGroup
-            ? this.toDto(specificationGroup)
-            : null;
+        return specificationGroup ? this.toDto(specificationGroup) : null;
     }
 
     async createSpecificationGroup(
@@ -58,9 +55,7 @@ export class SpecificationGroupService
         return this.specificationGroupRepository.update(id, data);
     }
 
-    async deleteSpecificationGroup(
-        id: number,
-    ): Promise<boolean> {
+    async deleteSpecificationGroup(id: number): Promise<boolean> {
         return this.specificationGroupRepository.delete(id);
     }
 
