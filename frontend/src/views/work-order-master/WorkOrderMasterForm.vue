@@ -85,7 +85,7 @@ onMounted(() => {
                         </label>
 
                         <Select v-model="form.specification_group_id" :options="specificationGroups" optionLabel="name"
-                            optionValue="id" class="w-full" placeholder="Select specification group"
+                            optionValue="id" class="w-full" placeholder=""
                             :loading="specificationGroupLoading" :disabled="specificationGroupLoading"
                             :showClear="true" />
                     </div>
@@ -94,56 +94,56 @@ onMounted(() => {
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Job Code
                         </label>
-                        <InputText v-model="form.job_code" class="w-full" placeholder="Enter job code" required />
+                        <InputText v-model="form.job_code" class="w-full" placeholder="" required />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Job Name
                         </label>
-                        <InputText v-model="form.job_name" class="w-full" placeholder="Enter job name" required />
+                        <InputText v-model="form.job_name" class="w-full" placeholder="" required />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Job Category
                         </label>
-                        <InputText v-model="form.job_category" class="w-full" placeholder="Enter job category" />
+                        <InputText v-model="form.job_category" class="w-full" placeholder="" />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Job Standard
                         </label>
-                        <InputText v-model="form.job_standar" class="w-full" placeholder="Enter job standard" />
+                        <InputText v-model="form.job_standar" class="w-full" placeholder="" />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Job Type
                         </label>
-                        <InputText v-model="form.job_type" class="w-full" placeholder="Enter job type" />
+                        <InputText v-model="form.job_type" class="w-full" placeholder="" />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Job Critical
                         </label>
-                        <InputText v-model="form.job_critical" class="w-full" placeholder="Enter job critical" />
+                        <InputText v-model="form.job_critical" class="w-full" placeholder="" />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Job Internal
                         </label>
-                        <InputText v-model="form.job_internal" class="w-full" placeholder="Enter job internal" />
+                        <InputText v-model="form.job_internal" class="w-full" placeholder="" />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Estimated Hours
                         </label>
-                        <InputNumber v-model="form.estimated_hours" class="w-full" placeholder="Enter estimated hours"
+                        <InputNumber v-model="form.estimated_hours" class="w-full" placeholder=""
                             :min="0" />
                     </div>
 
@@ -151,7 +151,7 @@ onMounted(() => {
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Job Description
                         </label>
-                        <Textarea v-model="form.job_desc" class="w-full" placeholder="Enter job description" rows="4" />
+                        <Textarea v-model="form.job_desc" class="w-full" placeholder="" rows="4" />
                     </div>
                 </div>
             </div>

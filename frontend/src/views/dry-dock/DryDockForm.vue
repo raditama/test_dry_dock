@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive } from 'vue'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Select from 'primevue/select'
@@ -71,14 +71,14 @@ const submit = () => {
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Vessel
                         </label>
-                        <InputText v-model="form.vessel" class="w-full" placeholder="Enter vessel name" required />
+                        <InputText v-model="form.vessel" class="w-full" placeholder="" required />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Dock List No
                         </label>
-                        <InputText v-model="form.dock_list_no" class="w-full" placeholder="e.g. DL-2026-001" required />
+                        <InputText v-model="form.dock_list_no" class="w-full" placeholder="" required />
                     </div>
 
                     <div>
@@ -86,14 +86,14 @@ const submit = () => {
                             Description
                         </label>
                         <Textarea v-model="form.description" class="w-full" rows="3"
-                            placeholder="Describe the dry dock activity" />
+                            placeholder="" />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Shipyard Name
                         </label>
-                        <InputText v-model="form.shipyard_name" class="w-full" placeholder="Enter shipyard name"
+                        <InputText v-model="form.shipyard_name" class="w-full" placeholder=""
                             required />
                     </div>
 
@@ -101,7 +101,7 @@ const submit = () => {
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Shipyard Detail
                         </label>
-                        <InputText v-model="form.shipyard_detail" class="w-full" placeholder="e.g. Dock Area 01" />
+                        <InputText v-model="form.shipyard_detail" class="w-full" placeholder="" />
                     </div>
 
                     <div>
@@ -136,7 +136,7 @@ const submit = () => {
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Account Code
                         </label>
-                        <InputText v-model="form.account_code" class="w-full" placeholder="e.g. ACC-001" />
+                        <InputText v-model="form.account_code" class="w-full" placeholder="" />
                     </div>
 
                     <div>
@@ -152,7 +152,7 @@ const submit = () => {
                             Responsible Bank
                         </label>
                         <InputText v-model="form.responsible_bank" class="w-full"
-                            placeholder="Enter responsible bank" />
+                            placeholder="" />
                     </div>
 
                     <div>

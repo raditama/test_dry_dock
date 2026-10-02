@@ -11,6 +11,7 @@ import Button from 'primevue/button'
 import ChecklistItemEdit from './ChecklistItemEdit.vue'
 import type { Pagination } from '@/types/pagination.ts'
 import { getChecklist } from '@/api/checklist.ts'
+import type { Checklist, ChecklistResponse } from '@/types/checklist.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -119,7 +120,7 @@ const confirmDeleteChecklistItem = async (): Promise<void> => {
     }
 }
 
-const checklist = ref<any>(null)
+const checklist = ref<Checklist>()
 
 const loadChecklist = async () => {
     const response = await getChecklist(checklist_id)

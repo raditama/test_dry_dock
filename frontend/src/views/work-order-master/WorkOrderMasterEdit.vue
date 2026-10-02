@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import { getWorkOrderMaster, updateWorkOrderMaster} from '@/api/work-order-master.ts'
-import type { WorkOrderMaster} from '@/types/work-order-master.ts'
+import type { WorkOrderMaster, WorkOrderMasterFormData} from '@/types/work-order-master.ts'
 import WorkOrderMasterForm from './WorkOrderMasterForm.vue'
 
 interface Props {
@@ -39,7 +39,7 @@ const fetchWorkOrderMaster= async (): Promise<void> => {
     }
 }
 
-const handleSubmit = async (data: any): Promise<void> => {
+const handleSubmit = async (data: WorkOrderMasterFormData): Promise<void> => {
     if (!props.id) return
 
     try {

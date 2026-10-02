@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
 import { getChecklistItem, updateChecklistItem } from '@/api/checklist-item.ts'
-import type { ChecklistItem } from '@/types/checklist-item.ts'
+import type { ChecklistItem, ChecklistItemFormData } from '@/types/checklist-item.ts'
 import ChecklistItemForm from './ChecklistItemForm.vue'
 
 interface Props {
@@ -39,7 +39,7 @@ const fetchChecklistItem = async (): Promise<void> => {
     }
 }
 
-const handleSubmit = async (data: any): Promise<void> => {
+const handleSubmit = async (data: ChecklistItemFormData): Promise<void> => {
     if (!props.id) return
 
     try {

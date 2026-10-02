@@ -48,14 +48,14 @@ const submit = () => {
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Title
                         </label>
-                        <InputText v-model="form.title" class="w-full" placeholder="Enter checklist item title" required />
+                        <InputText v-model="form.title" class="w-full" placeholder="" required />
                     </div>
 
                     <div>
                         <label class="mb-1 block text-sm font-medium text-slate-700">
                             Data Type
                         </label>
-                        <InputText v-model="form.data_type" class="w-full" placeholder="Enter checklist item title" required />
+                        <InputText v-model="form.data_type" class="w-full" placeholder="" required />
                     </div>
                 </div>
             </div>
